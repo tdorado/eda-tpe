@@ -13,7 +13,17 @@ public class AIPlayer extends Player {
     }
 
     public void calculateAndMakeMove(){
-       //MiniMax
+        // A este metodo llamamos para que la ai elija y haga su movimiento
+        int result;
+        Move move = new Move(0, 0, 0, 0, this);
+        result = game.getGameBoard().makeMove(move);
+        points += result;
+        game.getUndoStack().push(move);
+        game.changeCurrentPlayerTurn();
+    }
+
+    public boolean makeDotFile(){
+        return false;
     }
 
     @Override
