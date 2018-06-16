@@ -1,5 +1,7 @@
 package TPE.Timbiriche.model;
 
+import java.util.LinkedList;
+
 public class AIPlayer extends Player {
     private int aiMode;
     private int aiModeParam;
@@ -29,5 +31,15 @@ public class AIPlayer extends Player {
     @Override
     public boolean isAI(){
         return true;
+    }
+
+    private class GameBoardState{
+        private GameBoard gameboard;
+        private LinkedList<GameBoardState> children;
+
+        public GameBoardState(GameBoard gameboard) {
+            this.gameboard = gameboard;
+            this.children = new LinkedList<>();
+        }
     }
 }
