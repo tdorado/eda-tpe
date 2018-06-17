@@ -1,15 +1,14 @@
 package TPE.Timbiriche;
 
 import TPE.Timbiriche.model.Game;
-import TPE.Timbiriche.model.exceptions.WrongParametersException;
-
-import java.io.IOException;
 
 public class App
 {
+    public static Game game;
+
     public static void main( String[] args )
     {
-        Game game = null;
+        game = null;
 
         int size = 0, aiType = 0, aiMode = 0, aiModeParam = 0;
         boolean prune = false, argumentFail = false, loadFromFile = false;
@@ -106,11 +105,15 @@ public class App
                 }
             }
             if(!error) {
-                //ARRANCA LO VISUAL
+                startView();
             }
         }
         else{
             System.out.println("\nError: Wrong input parameters, please try again.");
         }
+    }
+
+    private static void startView() {
+        //ARRANCA LA VIEW DESDE ACA TIENEN QUE EMPEZAR A HACER LO VISUAL; LO UNICO QUE NECESITAN ES game que ya aca lo tienen
     }
 }

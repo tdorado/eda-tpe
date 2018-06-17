@@ -25,26 +25,20 @@ public class AIPlayer extends Player implements Serializable {
         this(aiMode, aiModeParam, prune, 0, game);
     }
 
-    public void setAiMode(int aiMode) {
+    void setAiMode(int aiMode) {
         this.aiMode = aiMode;
     }
 
-    public void setAiModeParam(int aiModeParam) {
+    void setAiModeParam(int aiModeParam) {
         this.aiModeParam = aiModeParam;
     }
 
-    public void setPrune(boolean prune) {
+    void setPrune(boolean prune) {
         this.prune = prune;
     }
 
     public void calculateAndMakeMove(){
-        // A este metodo llamamos para que la ai elija y haga su movimiento
-        /*int result;
-        Move move = new Move(0, 0, 0, 0, this);
-        result = game.getGameBoard().makeMove(move);
-        points += result;
-        game.getUndoStack().push(move);
-        game.changeCurrentPlayerTurn();*/
+        //Minimax
     }
 
     public boolean makeDotFile(){

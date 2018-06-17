@@ -135,36 +135,6 @@ public class GameBoard implements Serializable {
         return -1;
     }
 
-    int possiblePointsWithMove(Move move){
-        int result = 0;
-
-        SquareIndex squareIndex = locateSquareIndex(move);
-
-        if(move.isHorizontal()){  //Arista horizontal
-            if((squares[squareIndex.index] - 1) == 0){
-                result++;
-            }
-            if(!squareIndex.flagNotMid) {
-                squareIndex.index -= (size - 1);
-                if ((squares[squareIndex.index] - 1) == 0) {
-                    result++;
-                }
-            }
-        }
-        else{  //Arista vertical
-            if((squares[squareIndex.index] - 1) == 0){
-                result++;
-            }
-            if(!squareIndex.flagNotMid) {
-                squareIndex.index--;
-                if ((squares[squareIndex.index] - 1) == 0) {
-                    result++;
-                }
-            }
-        }
-        return result;
-    }
-
     private SquareIndex locateSquareIndex(Move move){
         SquareIndex squareIndex = new SquareIndex();
 
