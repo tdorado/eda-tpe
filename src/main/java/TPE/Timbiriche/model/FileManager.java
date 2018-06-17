@@ -12,7 +12,7 @@ class FileManager {
      * @return Directory path
      */
     private static String getResourcesDirectory() {
-        File resourcesDirectory = new File("src/resources/java/TPE/Timbiriche");
+        File resourcesDirectory = new File(System.getProperty("user.dir") + "src/resources/java/TPE/Timbiriche");
         return resourcesDirectory.getAbsoluteFile().toString();
     }
 

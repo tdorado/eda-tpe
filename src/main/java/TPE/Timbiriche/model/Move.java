@@ -79,6 +79,11 @@ public class Move implements Serializable {
         return Objects.hash(rowFrom, colFrom, rowTo, colTo);
     }
 
+    @Override
+    public String toString() {
+        return "(" + rowFrom + ", "  + colFrom + ")( " + rowTo + ", " + colTo + ')';
+    }
+
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         out.writeInt(rowFrom);
