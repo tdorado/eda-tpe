@@ -1,18 +1,25 @@
 package TPE.Timbiriche.model;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashSet;
 
-public class GameBoard {
-    private int squares[];
-    private HashSet<Arc> arcs;
-    private int movesLeft;
-    private int size;
+public class GameBoard implements Serializable {
 
-    public GameBoard(int size) {
+    private static final long serialVersionUID = 1L;
+
+    private int size;
+    private int squares[];
+    private HashSet<Move> movesDone;
+    private HashSet<Move> possibleMoves;
+
+    GameBoard(int size) {
         this.size = size;
         this.squares = new int[(size - 1) * (size - 1)];
-        this.arcs = new HashSet<>();
-        this.movesLeft = 2 * size * (size - 1);
+        this.movesDone = new HashSet<>();
+        this.possibleMoves = new HashSet<>();
         initializeGameBoard();
     }
 
@@ -20,133 +27,195 @@ public class GameBoard {
         for(int i = 0; i < (size - 1) * (size - 1); i++){
             squares[i] = 4;
         }
-    }
-
-    public boolean undoMove(Move move){
-        boolean flag = arcs.remove(new Arc(new Node(move.getiFrom(), move.getjFrom()), new Node(move.getiTo(), move.getjTo())));
-        if(flag) {
-            movesLeft++;
-            int squareIndex;
-            boolean flagNotMid = false;
-            if(move.getiFrom() == move.getiTo()){ //Arista horizontal
-                int jMin = Math.min(move.getjFrom(), move.getjTo());
-                if(move.getiFrom() == size -1) {
-                    flagNotMid = true;
-                    squareIndex = (move.getiFrom() - 1)*(size - 1) + jMin;
-                }
-                else if(move.getiFrom() == 0){
-                    flagNotMid = true;
-                    squareIndex = jMin;
-                }
-                else
-                    squareIndex = move.getiFrom()*(size - 1) + jMin;
-
-                squares[squareIndex]++;
-
-                if(!flagNotMid) {
-                    squareIndex -= (size - 1);
-                    squares[squareIndex]++;
-                }
-            }
-            else{  //Arista vertical
-                int iMin = Math.min(move.getiFrom(), move.getiTo());
-                if(move.getjFrom() == size -1) {
-                    flagNotMid = true;
-                    squareIndex = move.getjFrom() - 1 + iMin*(size - 1);
-                }
-                else if(move.getjFrom() == 0){
-                    flagNotMid = true;
-                    squareIndex = iMin*(size - 1);
-                }
-                else
-                    squareIndex = move.getjFrom() + iMin*(size - 1);
-
-                squares[squareIndex]++;
-                if(!flagNotMid) {
-                    squareIndex --;
-                    squares[squareIndex]++;
+        for(int row = 0; row < size; row++){
+            for(int col = 0; col < size; col++){
+                if (row == size - 1 && col != size -1) {
+                    possibleMoves.add(new Move(row, col, row, col + 1));
+                } else if (col == size - 1 && row != size -1) {
+                    possibleMoves.add(new Move(row, col, row + 1, col));
+                } else if(row != size -1 && col != size -1) {
+                    possibleMoves.add(new Move(row, col, row, col + 1));
+                    possibleMoves.add(new Move(row, col, row + 1, col));
                 }
             }
         }
-        return flag;
     }
 
-    public boolean validMove(Move move){
+    public boolean isOver(){
+        return possibleMoves.isEmpty();
+    }
+
+    public int getSize(){
+        return size;
+    }
+
+    private boolean validMove(Move move){
         if(!isOver())
-            if(move.getiFrom() >= 0 && move.getiFrom() < size && move.getjFrom() >= 0 && move.getjFrom() < size)
-                if(move.getiTo() >= 0 && move.getiTo() < size && move.getjTo() >= 0 && move.getjTo() < size)
-                    if( ( (move.getiTo() == move.getiFrom()) && (move.getjTo() != move.getjFrom()) ) || ( (move.getiTo() != move.getiFrom()) && (move.getjTo() == move.getjFrom()) ) )
-                        if( Math.abs(move.getiFrom() - move.getiTo()) <= 1 && Math.abs(move.getjFrom() - move.getjTo()) <= 1 )
-                            return !arcs.contains(new Arc(new Node(move.getiFrom(), move.getjFrom()), new Node(move.getiTo(), move.getjTo())));
+            return possibleMoves.contains(move);
         return false;
     }
 
-    public int makeMove(Move move){
+    int undoMove(Move move){
+        if(movesDone.remove(move)){
+            possibleMoves.add(move);
+
+            SquareIndex squareIndex = locateSquareIndex(move);
+            int result = 0;
+
+            if(move.isHorizontal()){
+                if(squares[squareIndex.index] == 0){
+                    result++;
+                }
+                squares[squareIndex.index]++;
+
+                if(!squareIndex.flagNotMid) {
+                    squareIndex.index -= (size - 1);
+                    if(squares[squareIndex.index] == 0){
+                        result++;
+                    }
+                    squares[squareIndex.index]++;
+                }
+            }
+            else{
+                if(squares[squareIndex.index] == 0){
+                    result++;
+                }
+                squares[squareIndex.index]++;
+
+                if(!squareIndex.flagNotMid) {
+                    squareIndex.index--;
+                    if(squares[squareIndex.index] == 0){
+                        result++;
+                    }
+                    squares[squareIndex.index]++;
+                }
+            }
+            return result;
+        }
+        return -1;
+    }
+
+    int makeMove(Move move){
         if(validMove(move)){
-            if(arcs.add(new Arc(new Node(move.getiFrom(), move.getjFrom()), new Node(move.getiTo(), move.getjTo())))){
-                movesLeft--;
-                int squareIndex;
-                int result = 0;
-                boolean flagNotMid = false;
-                if(move.getiFrom() == move.getiTo()){  //Arista horizontal
-                    int jMin = Math.min(move.getjFrom(), move.getjTo());
-                    if(move.getiFrom() == size -1) {
-                        flagNotMid = true;
-                        squareIndex = (move.getiFrom() - 1)*(size - 1) + jMin;
-                    }
-                    else if(move.getiFrom() == 0){
-                        flagNotMid = true;
-                        squareIndex = jMin;
-                    }
-                    else{
-                        squareIndex = move.getiFrom()*(size - 1) + jMin;
-                    }
-                    squares[squareIndex]--;
-                    if(squares[squareIndex] == 0){
+            movesDone.add(move);
+            possibleMoves.remove(move);
+
+            SquareIndex squareIndex = locateSquareIndex(move);
+            int result = 0;
+
+            if(move.isHorizontal()){  //Arista horizontal
+                squares[squareIndex.index]--;
+                if(squares[squareIndex.index] == 0){
+                    result++;
+                }
+                if(!squareIndex.flagNotMid) {
+                    squareIndex.index -= (size - 1);
+                    squares[squareIndex.index]--;
+                    if (squares[squareIndex.index] == 0) {
                         result++;
                     }
-                    if(!flagNotMid) {
-                        squareIndex -= (size - 1);
-                        squares[squareIndex]--;
-                        if (squares[squareIndex] == 0) {
-                            result++;
-                        }
-                    }
-                    return result;
                 }
-                else{  //Arista vertical
-                    int iMin = Math.min(move.getiFrom(), move.getiTo());
-                    if(move.getjFrom() == size -1) {
-                        flagNotMid = true;
-                        squareIndex = move.getjFrom() - 1 + iMin*(size - 1);
-                    }
-                    else if(move.getjFrom() == 0){
-                        flagNotMid = true;
-                        squareIndex = iMin*(size - 1);
-                    }
-                    else{
-                        squareIndex = move.getjFrom() + iMin*(size - 1);
-                    }
-                    squares[squareIndex]--;
-                    if(squares[squareIndex] == 0){
+                return result;
+            }
+            else{  //Arista vertical
+                squares[squareIndex.index]--;
+                if(squares[squareIndex.index] == 0){
+                    result++;
+                }
+                if(!squareIndex.flagNotMid) {
+                    squareIndex.index--;
+                    squares[squareIndex.index]--;
+                    if (squares[squareIndex.index] == 0) {
                         result++;
                     }
-                    if(!flagNotMid) {
-                        squareIndex --;
-                        squares[squareIndex]--;
-                        if (squares[squareIndex] == 0) {
-                            result++;
-                        }
-                    }
-                    return result;
                 }
+                return result;
             }
         }
         return -1;
     }
 
-    public boolean isOver(){
-        return movesLeft == 0;
+    int possiblePointsWithMove(Move move){
+        int result = 0;
+
+        SquareIndex squareIndex = locateSquareIndex(move);
+
+        if(move.isHorizontal()){  //Arista horizontal
+            if((squares[squareIndex.index] - 1) == 0){
+                result++;
+            }
+            if(!squareIndex.flagNotMid) {
+                squareIndex.index -= (size - 1);
+                if ((squares[squareIndex.index] - 1) == 0) {
+                    result++;
+                }
+            }
+        }
+        else{  //Arista vertical
+            if((squares[squareIndex.index] - 1) == 0){
+                result++;
+            }
+            if(!squareIndex.flagNotMid) {
+                squareIndex.index--;
+                if ((squares[squareIndex.index] - 1) == 0) {
+                    result++;
+                }
+            }
+        }
+        return result;
+    }
+
+    private SquareIndex locateSquareIndex(Move move){
+        SquareIndex squareIndex = new SquareIndex();
+
+        if(move.isHorizontal()){  //Arista horizontal
+            if(move.getRowFrom() == size -1) {
+                squareIndex.flagNotMid = true;
+                squareIndex.index = (move.getRowFrom() - 1)*(size - 1) + Math.min(move.getColFrom(), move.getColTo());
+            }
+            else if(move.getRowFrom() == 0){
+                squareIndex.flagNotMid = true;
+                squareIndex.index = Math.min(move.getColFrom(), move.getColTo());
+            }
+            else{
+                squareIndex.flagNotMid = false;
+                squareIndex.index = move.getRowFrom()*(size - 1) + Math.min(move.getColFrom(), move.getColTo());
+            }
+        }
+        else {  //Arista vertical
+            if (move.getColFrom() == size - 1) {
+                squareIndex.flagNotMid = true;
+                squareIndex.index = move.getColFrom() - 1 + Math.min(move.getRowFrom(), move.getRowTo()) * (size - 1);
+            } else if (move.getColFrom() == 0) {
+                squareIndex.flagNotMid = true;
+                squareIndex.index = Math.min(move.getRowFrom(), move.getRowTo()) * (size - 1);
+            } else {
+                squareIndex.flagNotMid = false;
+                squareIndex.index = move.getColFrom() + Math.min(move.getRowFrom(), move.getRowTo()) * (size - 1);
+            }
+        }
+        return squareIndex;
+    }
+
+    private class SquareIndex{
+        private int index;
+        private boolean flagNotMid;
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        out.writeInt(size);
+        out.writeObject(squares);
+        out.writeObject(movesDone);
+        out.writeObject(possibleMoves);
+    }
+
+    private void readObject(ObjectInputStream ois) throws IOException,ClassNotFoundException{
+        ois.defaultReadObject();
+        size = ois.readInt();
+        squares = (int[])ois.readObject();
+        movesDone = (HashSet<Move>)ois.readObject();
+        possibleMoves = (HashSet<Move>)ois.readObject();
     }
 
 }
