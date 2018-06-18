@@ -1,17 +1,24 @@
 package TPE.Timbiriche.model;
 
-import java.io.File;
+import TPE.Timbiriche.model.exceptions.WrongParametersException;
+
+import java.io.*;
 import java.util.Random;
 import java.util.Stack;
 
-public class Game {
+public class Game implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     private GameBoard gameBoard;
-    private Stack<Move> undoStack;
+    private Stack<MoveDone> undoStack;
+    private int aiType;
     private Player player1;
     private Player player2;
     private int currentPlayerTurn;
 
     public Game(int size, int aiType, int aiMode, int aiModeParam, boolean prune){
+        this.aiType = aiType;
         this.undoStack = new Stack<>();
         this.gameBoard = new GameBoard(size);
 
@@ -38,26 +45,21 @@ public class Game {
         }
     }
 
-    public Game(int size, int aiType, int aiMode, int aiModeParam, boolean prune, File file){
-        //Lo mismo pero con la carga desde un File
-        //Hay que cargar primero del archivo y despues hacer this con eso por si cambia el tipo de ai
-        //loadData(file)
-        this(size, aiType, aiMode, aiModeParam, prune);
-    }
-
     public boolean undoLastMove(){
         if(undoStack.isEmpty())
             return false;
-        Move move = undoStack.pop();
-        move.getPlayer().setPoints(move.getPlayer().getPoints() -1);
-        return gameBoard.undoMove(move);
+
+        MoveDone moveDone = undoStack.pop();
+        int pointsToRemove = gameBoard.undoMove(moveDone.getMove());
+        moveDone.getPlayer().setPoints(moveDone.getPlayer().getPoints() - pointsToRemove);
+        return true;
     }
 
     public GameBoard getGameBoard() {
         return gameBoard;
     }
 
-    public Stack<Move> getUndoStack() {
+    Stack<MoveDone> getUndoStack() {
         return undoStack;
     }
 
@@ -68,7 +70,7 @@ public class Game {
         return player2;
     }
 
-    public void changeCurrentPlayerTurn() {
+    void changeCurrentPlayerTurn() {
         if(currentPlayerTurn == 1){
             currentPlayerTurn = 2;
         }
@@ -77,5 +79,105 @@ public class Game {
         }
     }
 
+    public void saveGame(String fileName) throws IOException, ClassNotFoundException {
+        FileManager.writeToFile(this,fileName);
+    }
 
+    public static Game loadGameFromFile(int size, int aiType, int aiMode, int aiModeParam, boolean prune, String fileName) throws IOException, ClassNotFoundException, WrongParametersException {
+        Game game;
+        game = (Game)FileManager.readFromFile(fileName);
+        if (game != null){
+            if(size != game.gameBoard.getSize()){
+                throw new WrongParametersException();
+            }
+            if(game.aiType == 0){
+                if(aiType == 1){
+                    game.player1 = new AIPlayer(aiMode, aiModeParam, prune, game.player1.getPoints(), game);
+                }
+                else if(aiType == 2){
+                    game.player2 = new AIPlayer(aiMode, aiModeParam, prune, game.player2.getPoints(), game);
+                }
+                else if(aiType == 3){
+                    game.player1 = new AIPlayer(aiMode, aiModeParam, prune, game.player1.getPoints(), game);
+                    game.player2 = new AIPlayer(aiMode, aiModeParam, prune, game.player2.getPoints(), game);
+                }
+            }
+            else if(game.aiType == 1){
+                if(aiType == 0){
+                    game.player1 = new Player(game.player1.getPoints(), game);
+                }
+                else if(aiType == 1){
+                    ((AIPlayer)game.player1).setAiMode(aiMode);
+                    ((AIPlayer)game.player1).setAiModeParam(aiModeParam);
+                    ((AIPlayer)game.player1).setPrune(prune);
+                }
+                else if(aiType == 2){
+                    game.player1 = new Player(game.player1.getPoints(), game);
+                    game.player2 = new AIPlayer(aiMode, aiModeParam, prune, game.player2.getPoints(), game);
+                }
+                else if(aiType == 3){
+                    game.player2 = new AIPlayer(aiMode, aiModeParam, prune, game.player2.getPoints(), game);
+                }
+            }
+            else if(game.aiType == 2){
+                if(aiType == 0){
+                    game.player2 = new Player(game.player2.getPoints(), game);
+                }
+                else if(aiType == 1){
+                    game.player1 = new AIPlayer(aiMode, aiModeParam, prune, game.player1.getPoints(), game);
+                    game.player2 = new Player(game.player2.getPoints(), game);
+                }
+                else if(aiType == 2){
+                    ((AIPlayer)game.player2).setAiMode(aiMode);
+                    ((AIPlayer)game.player2).setAiModeParam(aiModeParam);
+                    ((AIPlayer)game.player2).setPrune(prune);
+                }
+                else if(aiType == 3){
+                    game.player1 = new AIPlayer(aiMode, aiModeParam, prune, game.player1.getPoints(), game);
+                }
+            }
+            else if(game.aiType == 3){
+                if(aiType == 0){
+                    game.player1 = new Player(game.player1.getPoints(), game);
+                    game.player2 = new Player(game.player2.getPoints(), game);
+                }
+                else if(aiType == 1){
+                    game.player2 = new Player(game.player2.getPoints(), game);
+                }
+                else if(aiType == 2){
+                    game.player1 = new Player(game.player1.getPoints(), game);
+                }
+                else if(aiType == 3){
+                    ((AIPlayer)game.player1).setAiMode(aiMode);
+                    ((AIPlayer)game.player1).setAiModeParam(aiModeParam);
+                    ((AIPlayer)game.player1).setPrune(prune);
+                    ((AIPlayer)game.player2).setAiMode(aiMode);
+                    ((AIPlayer)game.player2).setAiModeParam(aiModeParam);
+                    ((AIPlayer)game.player2).setPrune(prune);
+                }
+            }
+            game.aiType = aiType;
+        }
+        return game;
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.defaultWriteObject();
+        out.writeObject(gameBoard);
+        out.writeObject(undoStack);
+        out.writeInt(aiType);
+        out.writeObject(player1);
+        out.writeObject(player2);
+        out.writeInt(currentPlayerTurn);
+    }
+
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        ois.defaultReadObject();
+        gameBoard = (GameBoard)ois.readObject();
+        undoStack = (Stack<MoveDone>)ois.readObject();
+        aiType = ois.readInt();
+        player1 = (Player)ois.readObject();
+        player2 = (Player)ois.readObject();
+        currentPlayerTurn = ois.readInt();
+    }
 }
