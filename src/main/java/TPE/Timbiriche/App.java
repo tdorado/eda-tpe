@@ -104,8 +104,14 @@ public class App
                     System.out.println(e);
                 }
             }
+            if(game == null){
+                error = true;
+            }
             if(!error) {
                 startView();
+            }
+            else{
+                System.out.println("\nError: Wrong input parameters, please try again.");
             }
         }
         else{
@@ -114,6 +120,7 @@ public class App
     }
 
     private static void startView() {
-        //ARRANCA LA VIEW DESDE ACA TIENEN QUE EMPEZAR A HACER LO VISUAL; LO UNICO QUE NECESITAN ES game que ya aca lo tienen
+        //ACA LLAMAR AL VIEW
     }
+
 }

@@ -1,5 +1,7 @@
+package TPE.Timbiriche.view;
+
 public class Rectangle{
-	private Arc topVericalArc;
+	private Arc topVerticalArc;
 	private Arc bottomVerticalArc;
 	private Arc leftHorizontalArc;
 	private Arc rightHorizontalArc;
@@ -17,7 +19,7 @@ public class Rectangle{
 		return rightHorizontalArc;
 	}
 	public Arc getTopVerticalArc() {
-		return topVericalArc;
+		return topVerticalArc;
 	}
 	public Arc getBottomVerticalArc() {
 		return bottomVerticalArc;

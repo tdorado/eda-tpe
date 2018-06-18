@@ -12,7 +12,7 @@ class FileManager {
      * @return Directory path
      */
     private static String getResourcesDirectory() {
-        File resourcesDirectory = new File(System.getProperty("user.dir") + "src/resources/java/TPE/Timbiriche");
+        File resourcesDirectory = new File(System.getProperty("user.dir") + "/target");
         return resourcesDirectory.getAbsoluteFile().toString();
     }
 
@@ -21,9 +21,8 @@ class FileManager {
      * @param object Object to save
      * @param fileName File name
      * @throws IOException
-     * @throws ClassNotFoundException
      */
-    static void writeToFile(Object object, String fileName) throws IOException, ClassNotFoundException {
+    static void writeToFile(Object object, String fileName) throws IOException {
         String resourceDirectory = getResourcesDirectory();
         ObjectOutputStream outStream = null;
         outStream = new ObjectOutputStream(new FileOutputStream(resourceDirectory + "/" + fileName + ".game"));

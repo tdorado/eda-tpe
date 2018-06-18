@@ -1,3 +1,5 @@
+package TPE.Timbiriche.view;
+
 public class Arc{
 	private Point from;
 	private Point to;

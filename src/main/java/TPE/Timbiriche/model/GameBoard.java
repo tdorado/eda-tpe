@@ -12,7 +12,7 @@ public class GameBoard implements Serializable {
 
     private int size;
     private int squares[];
-    private HashSet<Move> movesDone;
+    private HashSet<MoveDone> movesDone;
     private HashSet<Move> possibleMoves;
 
     GameBoard(int size) {
@@ -21,6 +21,38 @@ public class GameBoard implements Serializable {
         this.movesDone = new HashSet<>();
         this.possibleMoves = new HashSet<>();
         initializeGameBoard();
+    }
+
+    /**
+     * Returns HashSet containing all moves done at the point of request.
+     * @return HashSet of Move
+     */
+    public HashSet<MoveDone> getMovesDone(){
+        return movesDone;
+    }
+
+    /**
+     * Returns HashSet containing all possible moves at the point of request, not including the moves already done.
+     * @return HashSet of Move
+     */
+    public HashSet<Move> getPossibleMoves(){
+        return possibleMoves;
+    }
+
+    /**
+     * Returns true if the game is over, false if not.
+     * @return boolean
+     */
+    public boolean isOver(){
+        return possibleMoves.isEmpty();
+    }
+
+    /**
+     * Returns the size of the game board
+     * @return int
+     */
+    public int getSize(){
+        return size;
     }
 
     private void initializeGameBoard() {
@@ -41,22 +73,15 @@ public class GameBoard implements Serializable {
         }
     }
 
-    public boolean isOver(){
-        return possibleMoves.isEmpty();
-    }
-
-    public int getSize(){
-        return size;
-    }
-
     private boolean validMove(Move move){
         if(!isOver())
             return possibleMoves.contains(move);
         return false;
     }
 
-    int undoMove(Move move){
-        if(movesDone.remove(move)){
+    int undoMove(MoveDone moveDone){
+        Move move = moveDone.getMove();
+        if(movesDone.remove(moveDone)){
             possibleMoves.add(move);
 
             SquareIndex squareIndex = locateSquareIndex(move);
@@ -95,9 +120,10 @@ public class GameBoard implements Serializable {
         return -1;
     }
 
-    int makeMove(Move move){
+    int makeMove(MoveDone moveDone){
+        Move move = moveDone.getMove();
         if(validMove(move)){
-            movesDone.add(move);
+            movesDone.add(moveDone);
             possibleMoves.remove(move);
 
             SquareIndex squareIndex = locateSquareIndex(move);
@@ -184,8 +210,7 @@ public class GameBoard implements Serializable {
         ois.defaultReadObject();
         size = ois.readInt();
         squares = (int[])ois.readObject();
-        movesDone = (HashSet<Move>)ois.readObject();
+        movesDone = (HashSet<MoveDone>)ois.readObject();
         possibleMoves = (HashSet<Move>)ois.readObject();
     }
-
 }

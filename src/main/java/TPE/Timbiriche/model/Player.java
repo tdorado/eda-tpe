@@ -34,19 +34,23 @@ public class Player implements Serializable {
      * @throws InvalidMoveException
      */
     public void makeMove(int rowFrom, int colFrom, int rowTo, int colTo) throws InvalidMoveException {
-
-        Move move = new Move(rowFrom, colFrom, rowTo, colTo);
-        int result;
-        result = game.getGameBoard().makeMove(move);
-        if(result == -1){
+        if(makeMove(new Move(rowFrom, colFrom, rowTo, colTo)) == -1){
             throw new InvalidMoveException();
         }
-        else{
-            points += result;
-            game.getUndoStack().push(new MoveDone(move, this));
+    }
+
+    int makeMove(Move move){
+        int result;
+        result = game.getGameBoard().makeMove(new MoveDone(move, this));
+        if(result == -1){
+            return result;
         }
-        if(result == 0) //Unicamente cambia de turno si la jugada no gano puntos
+        points += result;
+        game.getUndoStack().push(new MoveDone(move, this));
+        if(result == 0) {
             game.changeCurrentPlayerTurn();
+        }
+        return result;
     }
 
     public boolean isAI(){

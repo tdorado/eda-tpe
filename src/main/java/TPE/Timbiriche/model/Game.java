@@ -1,12 +1,13 @@
 package TPE.Timbiriche.model;
 
+import TPE.Timbiriche.model.exceptions.DotCreationException;
 import TPE.Timbiriche.model.exceptions.WrongParametersException;
 
 import java.io.*;
 import java.util.Random;
 import java.util.Stack;
 
-public class Game implements Serializable {
+public class Game implements Serializable{
 
     private static final long serialVersionUID = 1L;
 
@@ -45,24 +46,32 @@ public class Game implements Serializable {
         }
     }
 
+    /**
+     * Makes the game to go back one turn.
+     * @return boolean true if the game went back, false if it is not possible to go back
+     */
     public boolean undoLastMove(){
         if(undoStack.isEmpty())
             return false;
 
         MoveDone moveDone = undoStack.pop();
-        int pointsToRemove = gameBoard.undoMove(moveDone.getMove());
+        int pointsToRemove = gameBoard.undoMove(moveDone);
         moveDone.getPlayer().setPoints(moveDone.getPlayer().getPoints() - pointsToRemove);
         return true;
     }
 
+    /**
+     * Returns the GameBoard containing information for the visual part.
+     * @return GameBoard of the Game
+     */
     public GameBoard getGameBoard() {
         return gameBoard;
     }
 
-    Stack<MoveDone> getUndoStack() {
-        return undoStack;
-    }
-
+    /**
+     * Returns the Player that has to make a move at the moment of request.
+     * @return Player
+     */
     public Player getCurrentPlayer() {
         if(currentPlayerTurn == 1){
             return player1;
@@ -70,19 +79,68 @@ public class Game implements Serializable {
         return player2;
     }
 
-    void changeCurrentPlayerTurn() {
+    /**
+     * Returns the Player that does not have to make a move at the moment of request.
+     * @return Player
+     */
+    public Player getNotCurrentPlayer(){
         if(currentPlayerTurn == 1){
-            currentPlayerTurn = 2;
+            return player2;
         }
-        else{
-            currentPlayerTurn = 1;
-        }
+        return player1;
     }
 
+    /**
+     * Generates .dot file containing the process of the minimax algorithm that the AIPlayer made to chose it's move.
+     * @param fileName name of the .dot file
+     * @return boolean, true if the file was created correctly and false if not
+     * @throws DotCreationException
+     */
+    public boolean generateDotFile(String fileName) throws DotCreationException {
+        if(aiType == 0){
+            return false;
+        }
+        else if(aiType == 1){
+            if(!((AIPlayer)player1).makeDotFile(fileName)){
+                throw new DotCreationException();
+            }
+        }
+        else if(aiType == 2){
+            if(!((AIPlayer)player2).makeDotFile(fileName)){
+                throw new DotCreationException();
+            }
+        }
+        else{
+            if(!((AIPlayer)getNotCurrentPlayer()).makeDotFile(fileName)){
+                throw new DotCreationException();
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Saves the current state of the game with all its values in a file .game
+     * @param fileName name of the saved game
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public void saveGame(String fileName) throws IOException, ClassNotFoundException {
         FileManager.writeToFile(this,fileName);
     }
 
+    /**
+     * Loads a previously saved game from the file fileName.game . It's also possible to change the parameters of the game.
+     * @param size
+     * @param aiType
+     * @param aiMode
+     * @param aiModeParam
+     * @param prune
+     * @param fileName
+     * @return Game class containing the game itself
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws WrongParametersException
+     */
     public static Game loadGameFromFile(int size, int aiType, int aiMode, int aiModeParam, boolean prune, String fileName) throws IOException, ClassNotFoundException, WrongParametersException {
         Game game;
         game = (Game)FileManager.readFromFile(fileName);
@@ -161,6 +219,19 @@ public class Game implements Serializable {
         return game;
     }
 
+    Stack<MoveDone> getUndoStack() {
+        return undoStack;
+    }
+
+    void changeCurrentPlayerTurn() {
+        if(currentPlayerTurn == 1){
+            currentPlayerTurn = 2;
+        }
+        else{
+            currentPlayerTurn = 1;
+        }
+    }
+
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         out.writeObject(gameBoard);
@@ -179,5 +250,24 @@ public class Game implements Serializable {
         player1 = (Player)ois.readObject();
         player2 = (Player)ois.readObject();
         currentPlayerTurn = ois.readInt();
+    }
+
+    Game deepCopy() {
+        Game result;
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            oos.writeObject(this);
+            oos.flush();
+            oos.close();
+            bos.close();
+            byte[] byteData = bos.toByteArray();
+            ByteArrayInputStream bais = new ByteArrayInputStream(byteData);
+            result = (Game) new ObjectInputStream(bais).readObject();
+        }
+        catch (Exception e){
+            result = null;
+        }
+        return result;
     }
 }
