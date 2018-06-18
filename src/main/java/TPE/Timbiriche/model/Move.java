@@ -15,7 +15,7 @@ public class Move implements Serializable {
     private int rowTo;
     private int colTo;
 
-    Move(int rowFrom, int colFrom, int rowTo, int colTo) {
+    public Move(int rowFrom, int colFrom, int rowTo, int colTo) {
         /*The HashCode and equals implementation assumes that the From position is lower than the To position,
         so we have to check this here just in case. */
         if(rowFrom > rowTo){

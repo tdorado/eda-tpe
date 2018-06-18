@@ -5,7 +5,7 @@ import java.io.*;
 /**
  * This class is used to save all current data for the game, it is called from Game class
  */
-class FileManager {
+public class FileManager {
 
     /**
      * Searchs the path for the resources directory

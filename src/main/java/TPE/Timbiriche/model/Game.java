@@ -46,10 +46,14 @@ public class Game implements Serializable{
         }
     }
 
-    /**
-     * Makes the game to go back one turn.
-     * @return boolean true if the game went back, false if it is not possible to go back
-     */
+    public Player getPlayer1(){
+        return player1;
+    }
+
+    public Player getPlayer2(){
+        return player2;
+    }
+
     public boolean undoLastMove(){
         if(undoStack.isEmpty())
             return false;

@@ -15,12 +15,14 @@ public class GameBoard implements Serializable {
     private HashSet<MoveDone> movesDone;
     private HashSet<Move> possibleMoves;
 
-    GameBoard(int size) {
+
+    public GameBoard(int size) {
         this.size = size;
         this.squares = new int[(size - 1) * (size - 1)];
-        this.movesDone = new HashSet<>();
+        this.movesDone = new HashSet<MoveDone>();
         this.possibleMoves = new HashSet<>();
         initializeGameBoard();
+
     }
 
     /**
@@ -84,10 +86,10 @@ public class GameBoard implements Serializable {
         if(movesDone.remove(moveDone)){
             possibleMoves.add(move);
 
-            SquareIndex squareIndex = locateSquareIndex(move);
+            SquareIndex squareIndex = locateSquareIndex(moveDone.getMove());
             int result = 0;
 
-            if(move.isHorizontal()){
+            if(moveDone.getMove().isHorizontal()){
                 if(squares[squareIndex.index] == 0){
                     result++;
                 }
@@ -126,10 +128,10 @@ public class GameBoard implements Serializable {
             movesDone.add(moveDone);
             possibleMoves.remove(move);
 
-            SquareIndex squareIndex = locateSquareIndex(move);
+            SquareIndex squareIndex = locateSquareIndex(moveDone.getMove());
             int result = 0;
 
-            if(move.isHorizontal()){  //Arista horizontal
+            if(moveDone.getMove().isHorizontal()){  //Arista horizontal
                 squares[squareIndex.index]--;
                 if(squares[squareIndex.index] == 0){
                     result++;

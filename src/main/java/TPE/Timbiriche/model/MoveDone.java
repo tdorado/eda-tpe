@@ -5,23 +5,23 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-class MoveDone implements Serializable {
+public class MoveDone implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private Move move;
     private Player player;
 
-    MoveDone(Move move, Player player) {
+    public MoveDone(Move move, Player player) {
         this.move = move;
         this.player = player;
     }
 
-    Player getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 
-    Move getMove() {
+    public Move getMove() {
         return move;
     }
 
