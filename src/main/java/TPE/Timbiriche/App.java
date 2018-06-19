@@ -166,23 +166,23 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        Board board = new Board(game);
+        board = new Board(game);
 
         scene = new Scene(board, 800, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        while(!game.getGameBoard().isOver()){
-            Player actualPlayer = game.getCurrentPlayer();
-            if(actualPlayer.isAI()){
-                ((AIPlayer)actualPlayer).calculateAndMakeMove();
-            }
-            else{
-                Move move = getMove();
-                actualPlayer.makeMovePlayer(move);
-            }
-            board.refreshBoard();
-        }
+//        while(!game.getGameBoard().isOver()){
+//            Player actualPlayer = game.getCurrentPlayer();
+//            if(actualPlayer.isAI()){
+//                ((AIPlayer)actualPlayer).calculateAndMakeMove();
+//            }
+//            else{
+//                Move move = getMove();
+//                actualPlayer.makeMovePlayer(move);
+//            }
+//            board.refreshBoard();
+//        }
 
     }
 
@@ -206,6 +206,7 @@ public class App extends Application {
                 cont = 0;
             }
         }while(cont < 2);
+        System.out.println(move);
         return move;
     }
 
