@@ -4,13 +4,23 @@ import TPE.Timbiriche.model.*;
 import TPE.Timbiriche.model.exceptions.MinimaxException;
 import TPE.Timbiriche.view.Board;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
 import javax.xml.soap.Node;
+import javax.xml.soap.Text;
+import java.awt.*;
+
+import static javafx.scene.paint.Color.BLUE;
 
 public class App extends Application {
     private static Game game;
@@ -171,6 +181,37 @@ public class App extends Application {
         scene = new Scene(board, 800, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        Button undo = new Button("UNDO");
+        undo.setDefaultButton(true);
+
+        undo.setPrefSize(100, 25);
+
+        undo.setLayoutX(600);
+        undo.setLayoutY(25);
+
+        board.getChildren().add(undo);
+
+        Button save = new Button("SAVE");
+        save.setDefaultButton(true);
+
+        save.setPrefSize(100, 25);
+
+        save.setLayoutX(600);
+        save.setLayoutY(75);
+
+        board.getChildren().add(save);
+
+
+
+        undo.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                label.setText("Accepted");
+            }
+        });
+
+
+
 
 //        while(!game.getGameBoard().isOver()){
 //            Player actualPlayer = game.getCurrentPlayer();
