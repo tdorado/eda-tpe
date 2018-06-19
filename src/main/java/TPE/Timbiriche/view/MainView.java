@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 
 import static javafx.application.Application.launch;
 
-public class App extends Application {
+public class MainView extends Application {
         public static void main(String[] args) {
 
             launch(args);
