@@ -1,17 +1,23 @@
 package TPE.Timbiriche;
 
-import TPE.Timbiriche.model.AIPlayer;
-import TPE.Timbiriche.model.Game;
-import TPE.Timbiriche.model.Move;
-import TPE.Timbiriche.model.Player;
+import TPE.Timbiriche.model.*;
 import TPE.Timbiriche.model.exceptions.MinimaxException;
 import TPE.Timbiriche.view.Board;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
+import javax.xml.soap.Node;
+
 public class App extends Application {
-    public static Game game;
+    private static Game game;
+    private Scene scene;
+    private Board board;
+    private Coordinates cords[] = new Coordinates[2];
+    private int cont;
 
     public static void main( String[] args )
     {
@@ -115,7 +121,7 @@ public class App extends Application {
                 error = true;
             }
             if(!error) {
-                //testDeAIPlayer():
+                //testDeAIPlayer();
                 launch(args);
             }
             else{
@@ -129,13 +135,27 @@ public class App extends Application {
 
     private static void testDeAIPlayer(){
         int i = 0;
-        while(!game.getGameBoard().isOver()) {
+//        while(!game.getGameBoard().isOver()) {
+//            try {
+//                ((AIPlayer)game.getCurrentPlayer()).calculateAndMakeMove();
+//                System.out.println(((AIPlayer)game.getNotCurrentPlayer()).makeDotFile("player1" + i++));
+//            } catch (MinimaxException e) {
+//                e.printStackTrace();
+//            }
+//        }
+        for(int j = 0; j<3; j++){
             try {
                 ((AIPlayer)game.getCurrentPlayer()).calculateAndMakeMove();
                 System.out.println(((AIPlayer)game.getNotCurrentPlayer()).makeDotFile("player1" + i++));
             } catch (MinimaxException e) {
                 e.printStackTrace();
             }
+        }
+        try {
+            ((AIPlayer)game.getCurrentPlayer()).calculateAndMakeMove();
+            System.out.println(((AIPlayer)game.getNotCurrentPlayer()).makeDotFile("player1" + i++));
+        } catch (MinimaxException e) {
+            e.printStackTrace();
         }
         System.out.println(game.getPlayer1().getPoints());
         System.out.println(game.getPlayer2().getPoints());
@@ -148,7 +168,7 @@ public class App extends Application {
 
         Board board = new Board(game);
 
-        Scene scene = new Scene(board, 800, 600);
+        scene = new Scene(board, 800, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -158,12 +178,45 @@ public class App extends Application {
                 ((AIPlayer)actualPlayer).calculateAndMakeMove();
             }
             else{
-                Move move = board.getMove();
+                Move move = getMove();
                 actualPlayer.makeMovePlayer(move);
             }
             board.refreshBoard();
         }
 
+    }
+
+    private Move getMove(){
+        Move move = null;
+        do{
+            scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
+                    cont = 0;
+                    if(board.validateCoordinates((int)mouseEvent.getX(),(int)mouseEvent.getY())){
+                        cords[cont] = new Coordinates((int)mouseEvent.getX(),(int)mouseEvent.getY());
+                        cont++;
+                    }
+                }
+            });
+            if(cont ==2 && board.validateCoordinates(cords[1].x, cords[1].y)){
+                move = new Move( cords[0].x, cords[0].y, cords[1].x, cords[1].y);
+            }
+            else {
+                cont = 0;
+            }
+        }while(cont < 2);
+        return move;
+    }
+
+    private class Coordinates{
+        private int x;
+        private int y;
+
+        public Coordinates(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 
 }
