@@ -70,4 +70,14 @@ public class Board extends Pane {
         //ACA TIENEN QUE CREAR MOVIMIENTO DE ACUERDO AL MOUSEEVENT
         return null;
     }
+    private boolean validateCoordinates(double x, double y){
+        for(int i = 0;i < game.getGameBoard().getSize();i++){
+            for(int j = 0;j < game.getGameBoard().getSize();j++) {
+                if(x == i * DISTANCE && y == j * DISTANCE){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
