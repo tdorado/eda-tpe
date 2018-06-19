@@ -56,7 +56,7 @@ public class AIPlayer extends Player implements Serializable {
 
     private LinkedList<Move> minimax() throws MinimaxException {
         MoveState root = new MoveState(false);
-        minimaxRec(game.deepCopy(), root, 0, false, game.getCurrentPlayerTurn());
+        minimaxRec(game.deepCopy(), root, 0, false, true, game.getCurrentPlayerTurn());
         lastMoveState = root;
         System.out.println(lastMoveState.chosen);
         if(lastMoveState.chosen != null) {
@@ -65,11 +65,11 @@ public class AIPlayer extends Player implements Serializable {
         return null;
     }
 
-    private int minimaxRec(Game gamePhase, MoveState previousMoveState, int depth, boolean sameLevel, int currentTurn) throws MinimaxException {
+    private int minimaxRec(Game gamePhase, MoveState previousMoveState, int depth, boolean sameLevel, boolean maxOrMin, int currentTurn) throws MinimaxException {
         if(gamePhase == null){
             throw new MinimaxException();
         }
-        if(currentTurn == gamePhase.getCurrentPlayerTurn()){
+        if(maxOrMin){
             if(sameLevel){
                 boolean firstEntry = true;
                 boolean notMoreMoves = false;
@@ -94,14 +94,14 @@ public class AIPlayer extends Player implements Serializable {
                     }
                     currentMoveState.moves.add(move);
                     if (currentTurn == gamePhaseCopy.getCurrentPlayerTurn()) {
-                        minimaxRec(gamePhaseCopy, previousMoveState, depth, true, currentTurn);
+                        minimaxRec(gamePhaseCopy, previousMoveState, depth, true, true, currentTurn);
                     }
                     else{
                         if(previousMoveState.chosen == null){
                             previousMoveState.chosen = currentMoveState;
                         }
                         if(depth < aiModeParam){
-                            currentMoveState.value = minimaxRec(gamePhaseCopy, currentMoveState, depth + 1, false, gamePhaseCopy.getCurrentPlayerTurn());
+                            currentMoveState.value = minimaxRec(gamePhaseCopy, currentMoveState, depth + 1, false, false, currentTurn);
                         }
                         else{
                             currentMoveState.value = ((AIPlayer)gamePhaseCopy.getNotCurrentPlayer()).heuristicValue();
@@ -135,28 +135,26 @@ public class AIPlayer extends Player implements Serializable {
                     currentMoveState.moves.add(move);
                     previousMoveState.children.add(currentMoveState);
                     if (currentTurn == gamePhaseCopy.getCurrentPlayerTurn()) {
-                        minimaxRec(gamePhaseCopy, previousMoveState, depth, true, currentTurn);
+                        minimaxRec(gamePhaseCopy, previousMoveState, depth, true, true, currentTurn);
                     }
                     else{
                         if(previousMoveState.chosen == null){
                             previousMoveState.chosen = currentMoveState;
                         }
                         if(depth < aiModeParam){
-                            currentMoveState.value = minimaxRec(gamePhaseCopy, currentMoveState, depth + 1, false, gamePhaseCopy.getCurrentPlayerTurn());
+                            currentMoveState.value = minimaxRec(gamePhaseCopy, currentMoveState, depth + 1, false, false, currentTurn);
                         }
-                        else{
+                        else
                             currentMoveState.value = ((AIPlayer)gamePhaseCopy.getNotCurrentPlayer()).heuristicValue();
-                        }
                         if(previousMoveState.chosen.value < currentMoveState.value){
-                            previousMoveState.chosen = previousMoveState.children.getLast();
+                            previousMoveState.chosen = currentMoveState;
                         }
                     }
                 }
                 if(notMoreMoves){
                     MoveState currentMoveState = previousMoveState.children.getLast();
-                    if(previousMoveState.chosen == null){
+                    if(previousMoveState.chosen == null)
                         previousMoveState.chosen = currentMoveState;
-                    }
                     currentMoveState.value = ((AIPlayer)gamePhase.getNotCurrentPlayer()).heuristicValue();
                     if(previousMoveState.chosen.value < currentMoveState.value){
                         previousMoveState.chosen = currentMoveState;
@@ -166,7 +164,132 @@ public class AIPlayer extends Player implements Serializable {
             }
         }
         else{
-            return 0;
+            if(sameLevel){
+                boolean firstEntry = true;
+                boolean notMoreMoves = false;
+                if(gamePhase.getGameBoard().getPossibleMoves().isEmpty()){
+                    notMoreMoves = true;
+                }
+                for (Move move : gamePhase.getGameBoard().getPossibleMoves()) {
+                    Game gamePhaseCopy = gamePhase.deepCopy();
+                    gamePhaseCopy.getCurrentPlayer().makeMove(move);
+                    MoveState currentMoveState;
+                    if(firstEntry){
+                        currentMoveState = previousMoveState.children.getLast();
+                        firstEntry = false;
+                    }
+                    else{
+                        currentMoveState = new MoveState(false);
+                        LinkedList<Move> moves = previousMoveState.children.getLast().moves;
+                        for(int i = 0; i < moves.size() - 1; i++)
+                            currentMoveState.moves.add(moves.get(i));
+                        previousMoveState.children.add(currentMoveState);
+                    }
+                    currentMoveState.moves.add(move);
+                    if (currentTurn != gamePhaseCopy.getCurrentPlayerTurn()) {
+                        minimaxRec(gamePhaseCopy, previousMoveState, depth, true, false, currentTurn);
+                    }
+                    else{
+                        if(previousMoveState.chosen == null){
+                            previousMoveState.chosen = currentMoveState;
+                        }
+                        if(prune) {
+                            currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
+                            if (previousMoveState.chosen.value <= currentMoveState.value) {
+                                currentMoveState.pruned = true;
+                            }
+                            if(!currentMoveState.pruned) {
+                                if (depth < aiModeParam) {
+                                    currentMoveState.value = minimaxRec(gamePhaseCopy, currentMoveState, depth + 1, false, true, currentTurn);
+                                }
+                                else {
+                                    currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
+                                }
+                                if (previousMoveState.chosen.value > currentMoveState.value) {
+                                    previousMoveState.chosen = currentMoveState;
+                                }
+                            }
+                        }
+                        else{
+                            if (depth < aiModeParam) {
+                                currentMoveState.value = minimaxRec(gamePhaseCopy, currentMoveState, depth + 1, false, true, currentTurn);
+                            } else {
+                                currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
+                            }
+                            if (previousMoveState.chosen.value > currentMoveState.value) {
+                                previousMoveState.chosen = currentMoveState;
+                            }
+                        }
+                    }
+                }
+                if(notMoreMoves){
+                    MoveState currentMoveState = previousMoveState.children.getLast();
+                    if(previousMoveState.chosen == null){
+                        previousMoveState.chosen = currentMoveState;
+                    }
+                    currentMoveState.value = ((AIPlayer)gamePhase.getCurrentPlayer()).heuristicValue();
+                    if(previousMoveState.chosen.value > currentMoveState.value){
+                        previousMoveState.chosen = currentMoveState;
+                    }
+                }
+                return previousMoveState.chosen.value;
+            }
+            else {
+                boolean notMoreMoves = false;
+                if(gamePhase.getGameBoard().getPossibleMoves().isEmpty()){
+                    notMoreMoves = true;
+                }
+                for (Move move : gamePhase.getGameBoard().getPossibleMoves()) {
+                    Game gamePhaseCopy = gamePhase.deepCopy();
+                    gamePhaseCopy.getCurrentPlayer().makeMove(move);
+                    MoveState currentMoveState = new MoveState(false);
+                    currentMoveState.moves.add(move);
+                    previousMoveState.children.add(currentMoveState);
+                    if (currentTurn != gamePhaseCopy.getCurrentPlayerTurn()) {
+                        minimaxRec(gamePhaseCopy, previousMoveState, depth, true, false, currentTurn);
+                    }
+                    else{
+                        if(previousMoveState.chosen == null){
+                            previousMoveState.chosen = currentMoveState;
+                        }
+                        if(prune) {
+                            currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
+                            if (previousMoveState.chosen.value <= currentMoveState.value) {
+                                currentMoveState.pruned = true;
+                            }
+                            if(!currentMoveState.pruned) {
+                                if (depth < aiModeParam) {
+                                    currentMoveState.value = minimaxRec(gamePhaseCopy, currentMoveState, depth + 1, false, true, currentTurn);
+                                }
+                                else {
+                                    currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
+                                }
+                                if (previousMoveState.chosen.value > currentMoveState.value)
+                                    previousMoveState.chosen = currentMoveState;
+                            }
+                        }
+                        else{
+                            if (depth < aiModeParam) {
+                                currentMoveState.value = minimaxRec(gamePhaseCopy, currentMoveState, depth + 1, false, true, currentTurn);
+                            } else {
+                                currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
+                            }
+                            if (previousMoveState.chosen.value > currentMoveState.value) {
+                                previousMoveState.chosen = currentMoveState;
+                            }
+                        }
+                    }
+                }
+                if(notMoreMoves){
+                    MoveState currentMoveState = previousMoveState.children.getLast();
+                    if(previousMoveState.chosen == null)
+                        previousMoveState.chosen = currentMoveState;
+                    currentMoveState.value = ((AIPlayer)gamePhase.getCurrentPlayer()).heuristicValue();
+                    if(previousMoveState.chosen.value > currentMoveState.value)
+                        previousMoveState.chosen = currentMoveState;
+                }
+                return previousMoveState.chosen.value;
+            }
         }
     }
 
@@ -193,11 +316,11 @@ public class AIPlayer extends Player implements Serializable {
     }
 
 
-    boolean makeDotFile(String fileName){
+    public boolean makeDotFile(String fileName){
         if(lastMoveState == null){
             return false;
         }
-        PrintWriter writer = null;
+        PrintWriter writer;
         File file = new File(System.getProperty("user.dir") + "/target/" + fileName + ".dot");
         try {
             writer = new PrintWriter(file);
@@ -208,21 +331,23 @@ public class AIPlayer extends Player implements Serializable {
             return false;
         }
 
+        int nodeNumber = 1;
+
         writer.println("digraph {");
         writer.println();
 
-        writer.println("START [shape=box, fillcolor=coral1]");
+        writer.println("START [shape=box, style=filled, fillcolor=coral1]");
         for(MoveState moveState : lastMoveState.children){
             String moveString = moveState.toString();
             if(moveState == lastMoveState.chosen){
-                writer.println( moveString + " [shape=oval, fillcolor=coral1]");
-                writer.println( "START -> " + moveString);
+                writer.println( nodeNumber + "[label=\"" + moveString + "\" , shape=oval, style=filled, fillcolor=coral1]");
+                writer.println( "START -> " + nodeNumber);
             }
             else{
-                writer.println(moveString + " [shape=oval, fillcolor=white]");
-                writer.println( "START -> " + moveString);
+                writer.println( nodeNumber + "[label=\"" + moveString + "\" , shape=oval, style=filled, fillcolor=white]");
+                writer.println( "START -> " + nodeNumber);
             }
-            makeDotFileRec(writer, moveState);
+            nodeNumber = makeDotFileRec(writer, moveState, nodeNumber);
         }
 
         writer.println();
@@ -231,37 +356,39 @@ public class AIPlayer extends Player implements Serializable {
         return true;
     }
 
-    private void makeDotFileRec(PrintWriter writer, MoveState moveState){
+    private int makeDotFileRec(PrintWriter writer, MoveState moveState, int nodeNumber){
         String moveStringFrom = moveState.toString();
+        int nodeNumberFrom = nodeNumber++;
         for(MoveState moveStateChild : moveState.children){
             String moveStringTo = moveStateChild.toString();
             if(moveStateChild == moveState.chosen){
                 if(moveStateChild.isMax) {
-                    writer.println(moveStringTo + " [shape=oval, fillcolor=coral1]");
-                    writer.println(moveStringFrom + " -> " + moveStringTo);
+                    writer.println( nodeNumber + "[label=\"" + moveStringTo + "\" ,shape=oval, style=filled, fillcolor=coral1]");
+                    writer.println(nodeNumberFrom + " -> " + nodeNumber++);
                 }
                 else{
-                    writer.println(moveStringTo + " [shape=box, fillcolor=coral1]");
-                    writer.println(moveStringFrom + " -> " + moveStringTo);
+                    writer.println( nodeNumber + "[label=\"" + moveStringTo + "\" ,shape=box, style=filled, fillcolor=coral1]");
+                    writer.println(nodeNumberFrom + " -> " + nodeNumber++);
                 }
             }
             else{
                 if(moveStateChild.isMax) {
-                    writer.println(moveStringTo + " [shape=oval, fillcolor=white]");
-                    writer.println(moveStringFrom + " -> " + moveStringTo);
+                    writer.println( nodeNumber + "[label=\"" + moveStringTo + "\" , shape=oval, style=filled, fillcolor=white]");
+                    writer.println(nodeNumberFrom + " -> " + nodeNumber++);
                 }
                 else{
                     if(moveStateChild.pruned){
-                        writer.println(moveStringTo + " [shape=box, fillcolor=gray76]");
-                        writer.println(moveStringFrom + " -> " + moveStringTo);
+                        writer.println( nodeNumber + "[label=\"" + moveStringTo + "\" , shape=box, style=filled, fillcolor=gray76]");
+                        writer.println(nodeNumberFrom + " -> " + nodeNumber++);
                     }
                     else{
-                        writer.println(moveStringTo + " [shape=box, fillcolor=white]");
-                        writer.println(moveStringFrom + " -> " + moveStringTo);
+                        writer.println( nodeNumber + "[label=\"" + moveStringTo + "\" , shape=box, style=filled, fillcolor=white]");
+                        writer.println(nodeNumberFrom + " -> " + nodeNumber++);
                     }
                 }
             }
         }
+        return nodeNumber;
     }
 
     private class MoveState{

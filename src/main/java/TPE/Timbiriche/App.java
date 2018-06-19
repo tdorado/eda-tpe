@@ -124,14 +124,19 @@ public class App
     }
 
     private static void startView() {
+        int i = 0;
         while(!game.getGameBoard().isOver()) {
             try {
-                System.out.println(((AIPlayer)game.getCurrentPlayer()).getPoints());
                 ((AIPlayer)game.getCurrentPlayer()).calculateAndMakeMove();
+                System.out.println(((AIPlayer)game.getNotCurrentPlayer()).makeDotFile("player1" + i++));
             } catch (MinimaxException e) {
                 e.printStackTrace();
             }
         }
+        System.out.println(game.getPlayer1().getPoints());
+        System.out.println(game.getPlayer2().getPoints());
+
+        System.out.println("Termino");
     }
 
 }

@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 
 public class GameBoard implements Serializable {
 
@@ -73,6 +76,11 @@ public class GameBoard implements Serializable {
                 }
             }
         }
+        List<Move> aux = new LinkedList<>();
+        aux.addAll(possibleMoves);
+        Collections.shuffle(aux);
+        possibleMoves.removeAll(possibleMoves);
+        possibleMoves.addAll(aux);
     }
 
     private boolean validMove(Move move){
