@@ -2,6 +2,8 @@ package TPE.Timbiriche;
 
 import TPE.Timbiriche.model.AIPlayer;
 import TPE.Timbiriche.model.Game;
+import TPE.Timbiriche.model.Move;
+import TPE.Timbiriche.model.Player;
 import TPE.Timbiriche.model.exceptions.MinimaxException;
 import TPE.Timbiriche.view.Board;
 import javafx.application.Application;
@@ -144,12 +146,23 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        Board b = new Board(game);
+        Board board = new Board(game);
 
-        Scene scene = new Scene(b, 800, 600);
+        Scene scene = new Scene(board, 800, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
 
+        while(!game.getGameBoard().isOver()){
+            Player actualPlayer = game.getCurrentPlayer();
+            if(actualPlayer.isAI()){
+                ((AIPlayer)actualPlayer).calculateAndMakeMove();
+            }
+            else{
+                Move move = board.getMove();
+                actualPlayer.makeMovePlayer(move);
+            }
+            board.refreshBoard();
+        }
 
     }
 

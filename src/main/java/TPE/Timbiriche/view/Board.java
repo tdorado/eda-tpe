@@ -14,15 +14,20 @@ public class Board extends Pane {
 
     private static int DISTANCE = 30;
 
+    private static Game game;
 
-    // Board recibe el Game actual.
-    public Board(Game g){
+    public Board(Game game){
 
+        this.game = game;
+        refreshBoard();
+    }
+
+    public void refreshBoard(){
         int i;
         int j;
 
-        for(i=0;i<g.getGameBoard().getSize();i++){
-            for(j=0;j<g.getGameBoard().getSize();j++){
+        for(i=0;i<game.getGameBoard().getSize();i++){
+            for(j=0;j<game.getGameBoard().getSize();j++){
                 Circle c = new Circle(5,Color.BLACK);
                 c.relocate(i*DISTANCE,j*DISTANCE);
                 getChildren().add(c);
@@ -30,7 +35,7 @@ public class Board extends Pane {
         }
 
 
-        for(MoveDone d : g.getGameBoard().getMovesDone()){
+        for(MoveDone d : game.getGameBoard().getMovesDone()){
             Rectangle arc = new Rectangle();
             arc.setX(d.getMove().getRowFrom());
             arc.setY(d.getMove().getColFrom());
@@ -51,7 +56,7 @@ public class Board extends Pane {
                 arc.setArcHeight(1);
             }
 
-            if(d.getPlayer() == g.getPlayer1()){
+            if(d.getPlayer() == game.getPlayer1()){
                 arc.setFill(Color.RED);
             }
             else {
@@ -59,8 +64,10 @@ public class Board extends Pane {
             }
             getChildren().add(arc);
         }
-
     }
 
-
+    public Move getMove() {
+        //ACA TIENEN QUE CREAR MOVIMIENTO DE ACUERDO AL MOUSEEVENT
+        return null;
+    }
 }

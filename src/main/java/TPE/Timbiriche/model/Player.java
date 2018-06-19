@@ -23,18 +23,8 @@ public class Player implements Serializable {
         this(0, game);
     }
 
-    /**
-     *
-     * Method that makes the player movement.
-     *
-     * @param rowFrom
-     * @param colFrom
-     * @param rowTo
-     * @param colTo
-     * @throws InvalidMoveException
-     */
-    public void makeMove(int rowFrom, int colFrom, int rowTo, int colTo) throws InvalidMoveException {
-        if(makeMove(new Move(rowFrom, colFrom, rowTo, colTo)) == -1){
+    public void makeMovePlayer(Move move) throws InvalidMoveException {
+        if(makeMove(move) == -1){
             throw new InvalidMoveException();
         }
     }
