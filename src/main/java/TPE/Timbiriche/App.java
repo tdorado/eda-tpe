@@ -19,6 +19,7 @@ import javafx.stage.Stage;
 import javax.xml.soap.Node;
 import javax.xml.soap.Text;
 import java.awt.*;
+import java.io.IOException;
 
 import static javafx.scene.paint.Color.BLUE;
 
@@ -206,7 +207,19 @@ public class App extends Application {
 
         undo.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
-                label.setText("Accepted");
+                game.undoLastMove();
+            }
+        });
+
+        save.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                try {
+                    game.saveGame("Partida");
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                } catch (ClassNotFoundException e1) {
+                    e1.printStackTrace();
+                }
             }
         });
 

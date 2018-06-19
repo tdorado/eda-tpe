@@ -34,8 +34,8 @@ public class Board extends Pane {
 
         for(MoveDone d : g.getGameBoard().getMovesDone()){
             Rectangle arc = new Rectangle();
-            arc.setX(d.getMove().getRowFrom());
-            arc.setY(d.getMove().getColFrom());
+            arc.setX(d.getMove().getRowFrom()+ 2.5);
+            arc.setY(d.getMove().getColFrom()+2.5);
 
             if(d.getMove().isHorizontal()) {
 
