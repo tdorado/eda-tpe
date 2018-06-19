@@ -13,9 +13,11 @@ import javafx.stage.Stage;
 import javax.xml.soap.Node;
 
 public class App extends Application {
-    public static Game game;
-    private int cont = 0;
-    private Move[] n =new Move[2];
+    private static Game game;
+    private Scene scene;
+    private Board board;
+    private Coordinates cords[] = new Coordinates[2];
+    private int cont;
 
     public static void main( String[] args )
     {
@@ -119,8 +121,8 @@ public class App extends Application {
                 error = true;
             }
             if(!error) {
-                testDeAIPlayer();
-                //launch(args);
+                //testDeAIPlayer();
+                launch(args);
             }
             else{
                 System.out.println("\nError: Wrong input parameters, please try again.");
@@ -166,40 +168,9 @@ public class App extends Application {
 
         Board board = new Board(game);
 
-        Scene scene = new Scene(board, 800, 600);
+        scene = new Scene(board, 800, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
-
-
-
-        do{
-
-            scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent mouseEvent) {
-
-                    if(existMove((int)mouseEvent.getX(),(int)mouseEvent.getY()){
-
-                        n[cont] = new Move((int)mouseEvent.getX(),(int)mouseEvent.getY(),0,0);
-                        cont++;
-
-                    }
-
-                }
-            });
-                    if(cont ==2 && validMove(n[0],n[1])){
-                        Move m = new Move(n[0].getRowFrom(),n[0].getColFrom(),n[1].getRowTo(),n[1].getColTo());
-                        
-                    }
-
-                    else
-                        cont=0;
-
-        }
-
-        while(cont <2);
-
-
 
         while(!game.getGameBoard().isOver()){
             Player actualPlayer = game.getCurrentPlayer();
@@ -207,12 +178,45 @@ public class App extends Application {
                 ((AIPlayer)actualPlayer).calculateAndMakeMove();
             }
             else{
-                Move move = board.getMove();
+                Move move = getMove();
                 actualPlayer.makeMovePlayer(move);
             }
             board.refreshBoard();
         }
 
+    }
+
+    private Move getMove(){
+        Move move = null;
+        do{
+            scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
+                    cont = 0;
+                    if(board.validateCoordinates((int)mouseEvent.getX(),(int)mouseEvent.getY())){
+                        cords[cont] = new Coordinates((int)mouseEvent.getX(),(int)mouseEvent.getY());
+                        cont++;
+                    }
+                }
+            });
+            if(cont ==2 && board.validateCoordinates(cords[1].x, cords[1].y)){
+                move = new Move( cords[0].x, cords[0].y, cords[1].x, cords[1].y);
+            }
+            else {
+                cont = 0;
+            }
+        }while(cont < 2);
+        return move;
+    }
+
+    private class Coordinates{
+        private int x;
+        private int y;
+
+        public Coordinates(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
     }
 
 }

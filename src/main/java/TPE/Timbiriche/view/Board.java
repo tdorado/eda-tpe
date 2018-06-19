@@ -7,18 +7,15 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
-import static TPE.Timbiriche.App.game;
-
 
 public class Board extends Pane {
 
-    private static int DISTANCE = 30;
+    private static final int DISTANCE = 30;
+    private static Game g;
 
-    private static Game game;
+    public Board(Game g){
 
-    public Board(Game game){
-
-        this.game = game;
+        this.g = g;
         refreshBoard();
     }
 
@@ -26,8 +23,8 @@ public class Board extends Pane {
         int i;
         int j;
 
-        for(i=0;i<game.getGameBoard().getSize();i++){
-            for(j=0;j<game.getGameBoard().getSize();j++){
+        for(i=0;i<g.getGameBoard().getSize();i++){
+            for(j=0;j<g.getGameBoard().getSize();j++){
                 Circle c = new Circle(5,Color.BLACK);
                 c.relocate(i*DISTANCE,j*DISTANCE);
                 getChildren().add(c);
@@ -35,7 +32,7 @@ public class Board extends Pane {
         }
 
 
-        for(MoveDone d : game.getGameBoard().getMovesDone()){
+        for(MoveDone d : g.getGameBoard().getMovesDone()){
             Rectangle arc = new Rectangle();
             arc.setX(d.getMove().getRowFrom());
             arc.setY(d.getMove().getColFrom());
@@ -56,7 +53,7 @@ public class Board extends Pane {
                 arc.setArcHeight(1);
             }
 
-            if(d.getPlayer() == game.getPlayer1()){
+            if(d.getPlayer() == g.getPlayer1()){
                 arc.setFill(Color.RED);
             }
             else {
@@ -66,13 +63,9 @@ public class Board extends Pane {
         }
     }
 
-    public Move getMove() {
-        //ACA TIENEN QUE CREAR MOVIMIENTO DE ACUERDO AL MOUSEEVENT
-        return null;
-    }
-    private boolean validateCoordinates(double x, double y){
-        for(int i = 0;i < game.getGameBoard().getSize();i++){
-            for(int j = 0;j < game.getGameBoard().getSize();j++) {
+    public boolean validateCoordinates(int x, int y){
+        for(int i = 0;i < g.getGameBoard().getSize();i++){
+            for(int j = 0;j < g.getGameBoard().getSize();j++) {
                 if(x == i * DISTANCE && y == j * DISTANCE){
                     return true;
                 }
