@@ -16,27 +16,21 @@ public class Board extends Pane {
 
 
     // Board recibe el GameBord actual.
-    public Board(GameBoard g){
+    public Board(Game g){
 
         int i;
         int j;
 
-        for(i=0;i<g.getSize();i++){
-            for(j=0;j<g.getSize();j++){
+        for(i=0;i<g.getGameBoard().getSize();i++){
+            for(j=0;j<g.getGameBoard().getSize();j++){
                 Circle c = new Circle(5,Color.BLACK);
                 c.relocate(i*DISTANCE,j*DISTANCE);
                 getChildren().add(c);
             }
         }
 
-        Game gh = new Game(10,0,0,0,false);
 
-        GameBoard gb = new GameBoard(10);
-
-        gb.getMovesDone().add(new MoveDone(new Move(0,0,30,0),gh.getPlayer1()));
-        gb.getMovesDone().add(new MoveDone(new Move(30,0,60,0),gh.getPlayer2()));
-
-        for(MoveDone d : gb.getMovesDone()){
+        for(MoveDone d : g.getGameBoard().getMovesDone()){
             Rectangle arc = new Rectangle();
             arc.setX(d.getMove().getRowFrom());
             arc.setY(d.getMove().getColFrom());
@@ -45,7 +39,7 @@ public class Board extends Pane {
             arc.setArcWidth(1);
             arc.setArcHeight(1);
 
-            if(d.getPlayer() == gh.getPlayer1()){
+            if(d.getPlayer() == g.getPlayer1()){
                 arc.setFill(Color.RED);
                 System.out.println("hola");
             }

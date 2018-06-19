@@ -28,7 +28,7 @@ public class MainView extends Application {
         @Override
         public void start(Stage primaryStage) throws Exception {
 
-            Board b = new Board(g.getGameBoard());
+            Board b = new Board(g);
 
             Scene scene = new Scene(b, 800, 600);
             primaryStage.setScene(scene);
