@@ -13,17 +13,22 @@ import javafx.stage.Stage;
 import static javafx.application.Application.launch;
 
 public class MainView extends Application {
-        public static void main(String[] args) {
+        public static void main(String args) {
 
             launch(args);
+        }
+
+        public Game g;
+
+        public MainView(Game g)
+        {
+            this.g = g;
         }
 
         @Override
         public void start(Stage primaryStage) throws Exception {
 
-            GameBoard gb = new GameBoard(10);
-
-            Board b = new Board(gb);
+            Board b = new Board(g.getGameBoard());
 
             Scene scene = new Scene(b, 800, 600);
             primaryStage.setScene(scene);

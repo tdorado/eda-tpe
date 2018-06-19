@@ -3,6 +3,7 @@ package TPE.Timbiriche;
 import TPE.Timbiriche.model.AIPlayer;
 import TPE.Timbiriche.model.Game;
 import TPE.Timbiriche.model.exceptions.MinimaxException;
+import TPE.Timbiriche.view.MainView;
 
 public class App
 {
@@ -139,6 +140,8 @@ public class App
     }
 
     private static void startView() {
+        MainView principal = new MainView(game);
+        principal.main("ja");
 
     }
 

@@ -14,7 +14,6 @@ public class Board extends Pane {
 
     private static int DISTANCE = 30;
 
-    private  Game game;
 
     // Board recibe el GameBord actual.
     public Board(GameBoard g){
@@ -22,8 +21,8 @@ public class Board extends Pane {
         int i;
         int j;
 
-        for(i=0;i<10;i++){
-            for(j=0;j<10;j++){
+        for(i=0;i<g.getSize();i++){
+            for(j=0;j<g.getSize();j++){
                 Circle c = new Circle(5,Color.BLACK);
                 c.relocate(i*DISTANCE,j*DISTANCE);
                 getChildren().add(c);
