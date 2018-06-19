@@ -58,9 +58,14 @@ public class Game implements Serializable{
         if(undoStack.isEmpty())
             return false;
 
+        Player currentPlayer = getCurrentPlayer();
         MoveDone moveDone = undoStack.pop();
+        if(moveDone.getPlayer() != currentPlayer){
+            changeCurrentPlayerTurn();
+        }
         int pointsToRemove = gameBoard.undoMove(moveDone);
         moveDone.getPlayer().setPoints(moveDone.getPlayer().getPoints() - pointsToRemove);
+
         return true;
     }
 

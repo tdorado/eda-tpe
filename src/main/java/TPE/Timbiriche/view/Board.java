@@ -1,3 +1,5 @@
+package TPE.Timbiriche.view;
+
 import TPE.Timbiriche.model.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;

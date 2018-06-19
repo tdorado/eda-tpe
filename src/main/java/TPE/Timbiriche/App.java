@@ -4,8 +4,6 @@ import TPE.Timbiriche.model.AIPlayer;
 import TPE.Timbiriche.model.Game;
 import TPE.Timbiriche.model.exceptions.MinimaxException;
 
-import java.util.Scanner;
-
 public class App
 {
     public static Game game;
@@ -112,6 +110,7 @@ public class App
                 error = true;
             }
             if(!error) {
+                //testDeAIPlayer():
                 startView();
             }
             else{
@@ -123,7 +122,7 @@ public class App
         }
     }
 
-    private static void startView() {
+    private static void testDeAIPlayer(){
         int i = 0;
         while(!game.getGameBoard().isOver()) {
             try {
@@ -137,6 +136,10 @@ public class App
         System.out.println(game.getPlayer2().getPoints());
 
         System.out.println("Termino");
+    }
+
+    private static void startView() {
+
     }
 
 }
