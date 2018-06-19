@@ -55,9 +55,8 @@ public class AIPlayer extends Player implements Serializable {
     }
 
     private LinkedList<Move> minimax() throws MinimaxException {
-        MoveState root = new MoveState(false);
-        minimaxDepthRec(0, root, 0, false, true, game.getCurrentPlayerTurn());
-        lastMoveState = root;
+        lastMoveState = new MoveState(false);
+        minimaxDepthRec(0, lastMoveState, 0, false, true);
         System.out.println(lastMoveState.chosen);
         if(lastMoveState.chosen != null) {
             return lastMoveState.chosen.moves;
@@ -65,7 +64,7 @@ public class AIPlayer extends Player implements Serializable {
         return null;
     }
 
-    private int minimaxDepthRec(int movesCount, MoveState previousMoveState, int depth, boolean sameLevel, boolean maxOrMin, int currentTurn){
+    private int minimaxDepthRec(int movesCount, MoveState previousMoveState, int depth, boolean sameLevel, boolean maxOrMin){
         if(maxOrMin) {  // EMPIEZA EL MAX
             if(!game.getGameBoard().getPossibleMoves().isEmpty()) {
                 if (sameLevel) {
@@ -87,14 +86,14 @@ public class AIPlayer extends Player implements Serializable {
                             previousMoveState.children.add(currentMoveState);
                         }
                         currentMoveState.moves.add(move);
-                        if (currentTurn == game.getCurrentPlayerTurn()) {
-                            minimaxDepthRec(movesCount, previousMoveState, depth, true, true, currentTurn);
+                        if (this == game.getCurrentPlayer()) {
+                            minimaxDepthRec(movesCount, previousMoveState, depth, true, true);
                         } else {
                             if (previousMoveState.chosen == null) {
                                 previousMoveState.chosen = currentMoveState;
                             }
                             if (depth < aiModeParam) {
-                                currentMoveState.value = minimaxDepthRec(0, currentMoveState, depth + 1, false, false, currentTurn);
+                                currentMoveState.value = minimaxDepthRec(0, currentMoveState, depth + 1, false, false);
                             } else {
                                 currentMoveState.value = ((AIPlayer) game.getNotCurrentPlayer()).heuristicValue();
                             }
@@ -115,14 +114,14 @@ public class AIPlayer extends Player implements Serializable {
                         currentMoveState.moves.add(move);
                         movesCount++;
                         previousMoveState.children.add(currentMoveState);
-                        if (currentTurn == game.getCurrentPlayerTurn()) {
-                            minimaxDepthRec(movesCount, previousMoveState, depth, true, true, currentTurn);
+                        if (this == game.getCurrentPlayer()) {
+                            minimaxDepthRec(movesCount, previousMoveState, depth, true, true);
                         } else {
                             if (previousMoveState.chosen == null) {
                                 previousMoveState.chosen = currentMoveState;
                             }
                             if (depth < aiModeParam) {
-                                currentMoveState.value = minimaxDepthRec(0, currentMoveState, depth + 1, false, false, currentTurn);
+                                currentMoveState.value = minimaxDepthRec(0, currentMoveState, depth + 1, false, false);
                             } else
                                 currentMoveState.value = ((AIPlayer) game.getNotCurrentPlayer()).heuristicValue();
                             if (previousMoveState.chosen.value < currentMoveState.value) {
@@ -165,8 +164,8 @@ public class AIPlayer extends Player implements Serializable {
                             previousMoveState.children.add(currentMoveState);
                         }
                         currentMoveState.moves.add(move);
-                        if (currentTurn != game.getCurrentPlayerTurn()) {
-                            minimaxDepthRec(movesCount, previousMoveState, depth, true, false, currentTurn);
+                        if (this != game.getCurrentPlayer()) {
+                            minimaxDepthRec(movesCount, previousMoveState, depth, true, false);
                         } else {
                             if (previousMoveState.chosen == null) {
                                 previousMoveState.chosen = currentMoveState;
@@ -178,7 +177,7 @@ public class AIPlayer extends Player implements Serializable {
                                 }
                                 if (!currentMoveState.pruned) {
                                     if (depth < aiModeParam) {
-                                        currentMoveState.value = minimaxDepthRec(0, currentMoveState, depth + 1, false, true, currentTurn);
+                                        currentMoveState.value = minimaxDepthRec(0, currentMoveState, depth + 1, false, true);
                                     }
                                     if (previousMoveState.chosen.value > currentMoveState.value) {
                                         previousMoveState.chosen = currentMoveState;
@@ -186,7 +185,7 @@ public class AIPlayer extends Player implements Serializable {
                                 }
                             } else {
                                 if (depth < aiModeParam) {
-                                    currentMoveState.value = minimaxDepthRec(0, currentMoveState, depth + 1, false, true, currentTurn);
+                                    currentMoveState.value = minimaxDepthRec(0, currentMoveState, depth + 1, false, true);
                                 } else {
                                     currentMoveState.value = ((AIPlayer) game.getCurrentPlayer()).heuristicValue();
                                 }
@@ -208,8 +207,8 @@ public class AIPlayer extends Player implements Serializable {
                         currentMoveState.moves.add(move);
                         movesCount++;
                         previousMoveState.children.add(currentMoveState);
-                        if (currentTurn != game.getCurrentPlayerTurn()) {
-                            minimaxDepthRec(movesCount, previousMoveState, depth, true, false, currentTurn);
+                        if (this != game.getCurrentPlayer()) {
+                            minimaxDepthRec(movesCount, previousMoveState, depth, true, false);
                         } else {
                             if (previousMoveState.chosen == null) {
                                 previousMoveState.chosen = currentMoveState;
@@ -221,14 +220,14 @@ public class AIPlayer extends Player implements Serializable {
                                 }
                                 if (!currentMoveState.pruned) {
                                     if (depth < aiModeParam) {
-                                        currentMoveState.value = minimaxDepthRec(0, currentMoveState, depth + 1, false, true, currentTurn);
+                                        currentMoveState.value = minimaxDepthRec(0, currentMoveState, depth + 1, false, true);
                                     }
                                     if (previousMoveState.chosen.value > currentMoveState.value)
                                         previousMoveState.chosen = currentMoveState;
                                 }
                             } else {
                                 if (depth < aiModeParam) {
-                                    currentMoveState.value = minimaxDepthRec(0, currentMoveState, depth + 1, false, true, currentTurn);
+                                    currentMoveState.value = minimaxDepthRec(0, currentMoveState, depth + 1, false, true);
                                 } else {
                                     currentMoveState.value = ((AIPlayer) game.getCurrentPlayer()).heuristicValue();
                                 }
