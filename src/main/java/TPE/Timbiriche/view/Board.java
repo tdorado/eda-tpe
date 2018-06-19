@@ -73,4 +73,14 @@ public class Board extends Pane {
         }
         return false;
     }
+    private boolean validateCoordinates(double x, double y){
+        for(int i = 0;i < game.getGameBoard().getSize();i++){
+            for(int j = 0;j < game.getGameBoard().getSize();j++) {
+                if(x == i * DISTANCE && y == j * DISTANCE){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
