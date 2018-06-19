@@ -174,7 +174,8 @@ public class App extends Application {
                 }
             });
                     if(cont ==2 && validMove(n[0],n[1])){
-                        MoveDone m = new MoveDone(new Move(n[0].getRowFrom(),n[0].getColFrom(),n[1].getRowTo(),n[1].getColTo()),game.getCurrentPlayer());
+                        Move m = new Move(n[0].getRowFrom(),n[0].getColFrom(),n[1].getRowTo(),n[1].getColTo());
+                        
                     }
 
                     else
