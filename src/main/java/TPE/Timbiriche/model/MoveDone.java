@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Objects;
 
 public class MoveDone implements Serializable {
 
@@ -23,6 +24,19 @@ public class MoveDone implements Serializable {
 
     public Move getMove() {
         return move;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MoveDone moveDone = (MoveDone) o;
+        return Objects.equals(move, moveDone.move);
+    }
+
+    @Override
+    public int hashCode() {
+        return move.hashCode();
     }
 
     private void writeObject(ObjectOutputStream out) throws IOException {

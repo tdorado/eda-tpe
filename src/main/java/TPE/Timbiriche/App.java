@@ -119,8 +119,8 @@ public class App extends Application {
                 error = true;
             }
             if(!error) {
-                //testDeAIPlayer():
-                launch(args);
+                testDeAIPlayer();
+                //launch(args);
             }
             else{
                 System.out.println("\nError: Wrong input parameters, please try again.");
@@ -133,13 +133,27 @@ public class App extends Application {
 
     private static void testDeAIPlayer(){
         int i = 0;
-        while(!game.getGameBoard().isOver()) {
+//        while(!game.getGameBoard().isOver()) {
+//            try {
+//                ((AIPlayer)game.getCurrentPlayer()).calculateAndMakeMove();
+//                System.out.println(((AIPlayer)game.getNotCurrentPlayer()).makeDotFile("player1" + i++));
+//            } catch (MinimaxException e) {
+//                e.printStackTrace();
+//            }
+//        }
+        for(int j = 0; j<3; j++){
             try {
                 ((AIPlayer)game.getCurrentPlayer()).calculateAndMakeMove();
                 System.out.println(((AIPlayer)game.getNotCurrentPlayer()).makeDotFile("player1" + i++));
             } catch (MinimaxException e) {
                 e.printStackTrace();
             }
+        }
+        try {
+            ((AIPlayer)game.getCurrentPlayer()).calculateAndMakeMove();
+            System.out.println(((AIPlayer)game.getNotCurrentPlayer()).makeDotFile("player1" + i++));
+        } catch (MinimaxException e) {
+            e.printStackTrace();
         }
         System.out.println(game.getPlayer1().getPoints());
         System.out.println(game.getPlayer2().getPoints());
