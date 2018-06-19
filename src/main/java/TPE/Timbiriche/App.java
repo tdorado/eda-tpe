@@ -3,10 +3,12 @@ package TPE.Timbiriche;
 import TPE.Timbiriche.model.AIPlayer;
 import TPE.Timbiriche.model.Game;
 import TPE.Timbiriche.model.exceptions.MinimaxException;
-import TPE.Timbiriche.view.MainView;
+import TPE.Timbiriche.view.Board;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-public class App
-{
+public class App extends Application {
     public static Game game;
 
     public static void main( String[] args )
@@ -112,7 +114,7 @@ public class App
             }
             if(!error) {
                 //testDeAIPlayer():
-                startView();
+                launch(args);
             }
             else{
                 System.out.println("\nError: Wrong input parameters, please try again.");
@@ -139,9 +141,15 @@ public class App
         System.out.println("Termino");
     }
 
-    private static void startView() {
-        MainView principal = new MainView(game);
-        principal.main("ja");
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+
+        Board b = new Board(game);
+
+        Scene scene = new Scene(b, 800, 600);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
 
     }
 
