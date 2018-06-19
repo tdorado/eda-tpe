@@ -15,7 +15,7 @@ public class Board extends Pane {
     private static int DISTANCE = 30;
 
 
-    // Board recibe el GameBord actual.
+    // Board recibe el Game actual.
     public Board(Game g){
 
         int i;
@@ -34,33 +34,32 @@ public class Board extends Pane {
             Rectangle arc = new Rectangle();
             arc.setX(d.getMove().getRowFrom());
             arc.setY(d.getMove().getColFrom());
-            arc.setWidth(20);
-            arc.setHeight(3);
-            arc.setArcWidth(1);
-            arc.setArcHeight(1);
+
+            if(d.getMove().isHorizontal()) {
+
+                arc.setWidth(20);
+                arc.setHeight(3);
+                arc.setArcWidth(1);
+                arc.setArcHeight(1);
+            }
+
+            if(d.getMove().isVertical()) {
+
+                arc.setWidth(3);
+                arc.setHeight(20);
+                arc.setArcWidth(1);
+                arc.setArcHeight(1);
+            }
 
             if(d.getPlayer() == g.getPlayer1()){
                 arc.setFill(Color.RED);
-                System.out.println("hola");
             }
             else {
-                System.out.println("chau");
                 arc.setFill(Color.BLUE);
             }
             getChildren().add(arc);
         }
 
-
-
-
-      //  Circle c1 = new Circle(10, Color.BLACK);
-      //  c1.relocate(0, 0);
-       // Circle c2 = new Circle(10, Color.BLACK);
-      //  c2.relocate(30, 30);
-
-       // c.setFill(Color.BLACK);
-       // getChildren().addAll(c1,c2);
-      //  getChildren().add(c);
     }
 
 
