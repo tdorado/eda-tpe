@@ -1,17 +1,21 @@
 package TPE.Timbiriche;
 
-import TPE.Timbiriche.model.AIPlayer;
-import TPE.Timbiriche.model.Game;
-import TPE.Timbiriche.model.Move;
-import TPE.Timbiriche.model.Player;
+import TPE.Timbiriche.model.*;
 import TPE.Timbiriche.model.exceptions.MinimaxException;
 import TPE.Timbiriche.view.Board;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+
+import javax.xml.soap.Node;
 
 public class App extends Application {
     public static Game game;
+    private int cont = 0;
+    private Move[] n =new Move[2];
 
     public static void main( String[] args )
     {
@@ -151,6 +155,36 @@ public class App extends Application {
         Scene scene = new Scene(board, 800, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+
+
+        do{
+
+            scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent mouseEvent) {
+
+                    if(existMove((int)mouseEvent.getX(),(int)mouseEvent.getY()){
+
+                        n[cont] = new Move((int)mouseEvent.getX(),(int)mouseEvent.getY(),0,0);
+                        cont++;
+
+                    }
+
+                }
+            });
+                    if(cont ==2 && validMove(n[0],n[1])){
+                        MoveDone m = new MoveDone(new Move(n[0].getRowFrom(),n[0].getColFrom(),n[1].getRowTo(),n[1].getColTo()),game.getCurrentPlayer());
+                    }
+
+                    else
+                        cont=0;
+
+        }
+
+        while(cont <2);
+
+
 
         while(!game.getGameBoard().isOver()){
             Player actualPlayer = game.getCurrentPlayer();
