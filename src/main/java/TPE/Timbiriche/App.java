@@ -1,6 +1,10 @@
 package TPE.Timbiriche;
 
+import TPE.Timbiriche.model.AIPlayer;
 import TPE.Timbiriche.model.Game;
+import TPE.Timbiriche.model.exceptions.MinimaxException;
+
+import java.util.Scanner;
 
 public class App
 {
@@ -17,7 +21,7 @@ public class App
         if(args.length == 4 || args.length == 6 || args.length == 10 || args.length == 12) {
             if (args[0].equals("-size")) {
                 size = Integer.parseInt(args[1]);
-                if (size < 2 && size > 30) {
+                if (size < 1 && size > 30) {
                     argumentFail = true;
                 }
             }
@@ -120,7 +124,14 @@ public class App
     }
 
     private static void startView() {
-        //ACA LLAMAR AL VIEW
+        while(!game.getGameBoard().isOver()) {
+            try {
+                System.out.println(((AIPlayer)game.getCurrentPlayer()).getPoints());
+                ((AIPlayer)game.getCurrentPlayer()).calculateAndMakeMove();
+            } catch (MinimaxException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

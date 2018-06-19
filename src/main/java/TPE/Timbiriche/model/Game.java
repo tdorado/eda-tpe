@@ -236,6 +236,10 @@ public class Game implements Serializable{
         }
     }
 
+    int getCurrentPlayerTurn() {
+        return currentPlayerTurn;
+    }
+
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         out.writeObject(gameBoard);

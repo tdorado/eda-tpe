@@ -3,6 +3,7 @@ package TPE.Timbiriche.model;
 import TPE.Timbiriche.model.exceptions.MinimaxException;
 
 import java.io.*;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -15,14 +16,14 @@ public class AIPlayer extends Player implements Serializable {
     private int aiMode;
     private int aiModeParam;
     private boolean prune;
-    private LinkedList<MoveState> lastMoveStates;
+    private transient MoveState lastMoveState;
 
     AIPlayer(int aiMode, int aiModeParam, boolean prune, int points, Game game) {
         super(points, game);
         this.aiMode = aiMode;
         this.aiModeParam = aiModeParam;
         this.prune = prune;
-        this.lastMoveStates = null;
+        this.lastMoveState = null;
     }
 
     AIPlayer(int aiMode, int aiModeParam, boolean prune, Game game) {
@@ -47,122 +48,153 @@ public class AIPlayer extends Player implements Serializable {
     }
 
     public void calculateAndMakeMove() throws MinimaxException {
-        Move move = minimax();
-        this.makeMove(move);
+        LinkedList<Move> moves = minimax();
+        for(Move move : moves) {
+            this.makeMove(move);
+        }
     }
 
-    private Move minimax() throws MinimaxException {
-        MoveState root = new MoveState(new DataMove(false));
-        minimaxRec(game.deepCopy(), root, 0);
-        lastMoveStates = root.children;
-        for(MoveState moveState : root.children){
-            if(moveState.dataMove.chosen){
-                return moveState.dataMove.moves.getFirst();
-            }
+    private LinkedList<Move> minimax() throws MinimaxException {
+        MoveState root = new MoveState(false);
+        minimaxRec(game.deepCopy(), root, 0, false, game.getCurrentPlayerTurn());
+        lastMoveState = root;
+        System.out.println(lastMoveState.chosen);
+        if(lastMoveState.chosen != null) {
+            return lastMoveState.chosen.moves;
         }
         return null;
     }
 
-    private int minimaxRec(Game gamePhase, MoveState father, int depth) throws MinimaxException {
+    private int minimaxRec(Game gamePhase, MoveState previousMoveState, int depth, boolean sameLevel, int currentTurn) throws MinimaxException {
         if(gamePhase == null){
             throw new MinimaxException();
         }
-        if(game.getCurrentPlayer() == this){
-            DataMove maxMove = null;
-            for(Move move : game.getGameBoard().getPossibleMoves()){
-                MoveState currentMoveState = new MoveState(new DataMove(true));
-                while(game.getCurrentPlayer() == this){
-                    game.getCurrentPlayer().makeMove(move);
-                    currentMoveState.dataMove.moves.add(move);
+        if(currentTurn == gamePhase.getCurrentPlayerTurn()){
+            if(sameLevel){
+                boolean firstEntry = true;
+                boolean notMoreMoves = false;
+                if(gamePhase.getGameBoard().getPossibleMoves().isEmpty()){
+                    notMoreMoves = true;
                 }
-                if(depth < aiModeParam){
-                    currentMoveState.dataMove.value = minimaxRec(gamePhase.deepCopy(), currentMoveState, depth + 1);
-                }
-                else{
-                    currentMoveState.dataMove.value = heuristicValue();
-                }
-
-                if(maxMove == null){
-                    maxMove = currentMoveState.dataMove;
-                }
-                else{
-                    if(maxMove.value < currentMoveState.dataMove.value){
-                        maxMove = currentMoveState.dataMove;
+                for (Move move : gamePhase.getGameBoard().getPossibleMoves()) {
+                    Game gamePhaseCopy = gamePhase.deepCopy();
+                    gamePhaseCopy.getCurrentPlayer().makeMove(move);
+                    MoveState currentMoveState;
+                    if(firstEntry){
+                        currentMoveState = previousMoveState.children.getLast();
+                        firstEntry = false;
                     }
-                }
-                father.children.add(currentMoveState);
-            }
-            maxMove.chosen = true;
-            return maxMove.value;
-        }
-        else{
-            DataMove minMove = null;
-            for(Move move : game.getGameBoard().getPossibleMoves()){
-                MoveState currentMoveState = new MoveState(new DataMove(false));
-                while(game.getNotCurrentPlayer() == this){
-                    game.getCurrentPlayer().makeMove(move);
-                    currentMoveState.dataMove.moves.add(move);
-                }
-                if(prune){
-                    if(depth < aiModeParam){
-                        if(minMove == null){
-                            minMove = currentMoveState.dataMove;
+                    else{
+                        currentMoveState = new MoveState(true);
+                        LinkedList<Move> moves = previousMoveState.children.getLast().moves;
+                        for(int i = 0; i < moves.size() - 1; i++){
+                            currentMoveState.moves.add(moves.get(i));
+                        }
+                        previousMoveState.children.add(currentMoveState);
+                    }
+                    currentMoveState.moves.add(move);
+                    if (currentTurn == gamePhaseCopy.getCurrentPlayerTurn()) {
+                        minimaxRec(gamePhaseCopy, previousMoveState, depth, true, currentTurn);
+                    }
+                    else{
+                        if(previousMoveState.chosen == null){
+                            previousMoveState.chosen = currentMoveState;
+                        }
+                        if(depth < aiModeParam){
+                            currentMoveState.value = minimaxRec(gamePhaseCopy, currentMoveState, depth + 1, false, gamePhaseCopy.getCurrentPlayerTurn());
                         }
                         else{
-                            currentMoveState.dataMove.value = heuristicValue();
-                            if(minMove.value < currentMoveState.dataMove.value){
-                                currentMoveState.dataMove.pruned = true;
-                            }
+                            currentMoveState.value = ((AIPlayer)gamePhaseCopy.getNotCurrentPlayer()).heuristicValue();
                         }
-                        if(!currentMoveState.dataMove.pruned) {
-                            currentMoveState.dataMove.value = minimaxRec(gamePhase.deepCopy(), currentMoveState, depth + 1);
-                        }
-                        if(minMove.value > currentMoveState.dataMove.value){
-                            minMove = currentMoveState.dataMove;
+                        if(previousMoveState.chosen.value < currentMoveState.value){
+                            previousMoveState.chosen = currentMoveState;
                         }
                     }
                 }
-                else{
-                    if(depth < aiModeParam){
-                        currentMoveState.dataMove.value = minimaxRec(gamePhase.deepCopy(), currentMoveState, depth + 1);
+                if(notMoreMoves){
+                    MoveState currentMoveState = previousMoveState.children.getLast();
+                    if(previousMoveState.chosen == null){
+                        previousMoveState.chosen = currentMoveState;
                     }
-                    else{
-                        currentMoveState.dataMove.value = heuristicValue();
-                    }
-
-                    if(minMove == null){
-                        minMove = currentMoveState.dataMove;
-                    }
-                    else{
-                        if(minMove.value > currentMoveState.dataMove.value){
-                            minMove = currentMoveState.dataMove;
-                        }
+                    currentMoveState.value = ((AIPlayer)gamePhase.getNotCurrentPlayer()).heuristicValue();
+                    if(previousMoveState.chosen.value < currentMoveState.value){
+                        previousMoveState.chosen = currentMoveState;
                     }
                 }
-                father.children.add(currentMoveState);
+                return previousMoveState.chosen.value;
             }
-            minMove.chosen = true;
-            return minMove.value;
+            else {
+                boolean notMoreMoves = false;
+                if(gamePhase.getGameBoard().getPossibleMoves().isEmpty()){
+                    notMoreMoves = true;
+                }
+                for (Move move : gamePhase.getGameBoard().getPossibleMoves()) {
+                    Game gamePhaseCopy = gamePhase.deepCopy();
+                    gamePhaseCopy.getCurrentPlayer().makeMove(move);
+                    MoveState currentMoveState = new MoveState(true);
+                    currentMoveState.moves.add(move);
+                    previousMoveState.children.add(currentMoveState);
+                    if (currentTurn == gamePhaseCopy.getCurrentPlayerTurn()) {
+                        minimaxRec(gamePhaseCopy, previousMoveState, depth, true, currentTurn);
+                    }
+                    else{
+                        if(previousMoveState.chosen == null){
+                            previousMoveState.chosen = currentMoveState;
+                        }
+                        if(depth < aiModeParam){
+                            currentMoveState.value = minimaxRec(gamePhaseCopy, currentMoveState, depth + 1, false, gamePhaseCopy.getCurrentPlayerTurn());
+                        }
+                        else{
+                            currentMoveState.value = ((AIPlayer)gamePhaseCopy.getNotCurrentPlayer()).heuristicValue();
+                        }
+                        if(previousMoveState.chosen.value < currentMoveState.value){
+                            previousMoveState.chosen = previousMoveState.children.getLast();
+                        }
+                    }
+                }
+                if(notMoreMoves){
+                    MoveState currentMoveState = previousMoveState.children.getLast();
+                    if(previousMoveState.chosen == null){
+                        previousMoveState.chosen = currentMoveState;
+                    }
+                    currentMoveState.value = ((AIPlayer)gamePhase.getNotCurrentPlayer()).heuristicValue();
+                    if(previousMoveState.chosen.value < currentMoveState.value){
+                        previousMoveState.chosen = currentMoveState;
+                    }
+                }
+                return previousMoveState.chosen.value;
+            }
+        }
+        else{
+            return 0;
         }
     }
 
     private int heuristicValue(){
         if(game.getGameBoard().isOver()){
-            if(game.getNotCurrentPlayer().getPoints() > points){
+            if(getOtherPlayer().getPoints() > points){
                 return beta;
             }
-            else if(game.getNotCurrentPlayer().getPoints() < points){
+            else if(getOtherPlayer().getPoints() < points){
                 return alpha;
             }
             else{
                 return 0;
             }
         }
-        return points - game.getNotCurrentPlayer().getPoints();
+        return points - getOtherPlayer().getPoints();
     }
 
+    private Player getOtherPlayer() {
+        if(game.getCurrentPlayer() == this){
+            return game.getNotCurrentPlayer();
+        }
+        return game.getCurrentPlayer();
+    }
+
+
     boolean makeDotFile(String fileName){
-        if(lastMoveStates == null){
+        if(lastMoveState == null){
             return false;
         }
         PrintWriter writer = null;
@@ -180,9 +212,9 @@ public class AIPlayer extends Player implements Serializable {
         writer.println();
 
         writer.println("START [shape=box, fillcolor=coral1]");
-        for(MoveState moveState : lastMoveStates){
-            String moveString = moveState.dataMove.toString();
-            if(moveState.dataMove.chosen){
+        for(MoveState moveState : lastMoveState.children){
+            String moveString = moveState.toString();
+            if(moveState == lastMoveState.chosen){
                 writer.println( moveString + " [shape=oval, fillcolor=coral1]");
                 writer.println( "START -> " + moveString);
             }
@@ -200,11 +232,11 @@ public class AIPlayer extends Player implements Serializable {
     }
 
     private void makeDotFileRec(PrintWriter writer, MoveState moveState){
-        String moveStringFrom = moveState.dataMove.toString();
+        String moveStringFrom = moveState.toString();
         for(MoveState moveStateChild : moveState.children){
-            String moveStringTo = moveStateChild.dataMove.toString();
-            if(moveStateChild.dataMove.chosen){
-                if(moveStateChild.dataMove.isMax) {
+            String moveStringTo = moveStateChild.toString();
+            if(moveStateChild == moveState.chosen){
+                if(moveStateChild.isMax) {
                     writer.println(moveStringTo + " [shape=oval, fillcolor=coral1]");
                     writer.println(moveStringFrom + " -> " + moveStringTo);
                 }
@@ -214,12 +246,12 @@ public class AIPlayer extends Player implements Serializable {
                 }
             }
             else{
-                if(moveStateChild.dataMove.isMax) {
+                if(moveStateChild.isMax) {
                     writer.println(moveStringTo + " [shape=oval, fillcolor=white]");
                     writer.println(moveStringFrom + " -> " + moveStringTo);
                 }
                 else{
-                    if(moveStateChild.dataMove.pruned){
+                    if(moveStateChild.pruned){
                         writer.println(moveStringTo + " [shape=box, fillcolor=gray76]");
                         writer.println(moveStringFrom + " -> " + moveStringTo);
                     }
@@ -233,36 +265,27 @@ public class AIPlayer extends Player implements Serializable {
     }
 
     private class MoveState{
-        private DataMove dataMove;
-        private LinkedList<MoveState> children;
-
-        public MoveState(DataMove dataMove) {
-            this.dataMove = dataMove;
-            this.children = new LinkedList<>();
-        }
-    }
-
-    private class DataMove{
         private LinkedList<Move> moves;
         private Integer value;
         private boolean pruned;
-        private boolean chosen;
         private boolean isMax;
+        private MoveState chosen;
+        private LinkedList<MoveState> children;
 
-        public DataMove(boolean isMax) {
+        public MoveState(boolean isMax) {
             this.moves = new LinkedList<>();
             this.value = null;
             this.pruned = false;
-            this.chosen = false;
+            this.chosen = null;
             this.isMax = isMax;
+            this.children = new LinkedList<>();
         }
-
         @Override
         public String toString() {
             StringBuilder result = new StringBuilder();
             result.append("{");
             for(Move move : moves){
-                result.append(move.toString() + " ");
+                result.append("[" + move.toString() + "] ");
             }
             result.append(value + "}");
             return result.toString();

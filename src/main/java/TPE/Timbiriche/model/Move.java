@@ -6,7 +6,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Move implements Serializable {
+public class Move implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 1L;
 
