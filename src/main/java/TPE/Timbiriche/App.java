@@ -1,6 +1,7 @@
 package TPE.Timbiriche;
 
 import TPE.Timbiriche.model.*;
+import TPE.Timbiriche.model.exceptions.InvalidMoveException;
 import TPE.Timbiriche.model.exceptions.MinimaxException;
 import TPE.Timbiriche.view.Board;
 import javafx.application.Application;
@@ -31,6 +32,8 @@ public class App extends Application {
     private int cont;
     private static Text points1 = new Text(600, 150, "0");
     private static Text points2 = new Text(600, 175, "0");
+
+    private Move lastMoveClicked = null;
 
     public static Text getPoints1() {
         return points1;
@@ -142,24 +145,8 @@ public class App extends Application {
         }
     }
 
-    private static void testDeAIPlayer() {
-        int i = 0;
-        while (!game.getGameBoard().isOver()) {
-            try {
-                ((AIPlayer) game.getCurrentPlayer()).calculateAndMakeMove();
-                System.out.println(((AIPlayer) game.getNotCurrentPlayer()).makeDotFile("player1" + i++));
-            } catch (MinimaxException e) {
-                e.printStackTrace();
-            }
-        }
-        System.out.println(game.getPlayer1().getPoints());
-        System.out.println(game.getPlayer2().getPoints());
-
-        System.out.println("Termino");
-    }
-
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
 
 
 //
@@ -209,45 +196,48 @@ public class App extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        while (!game.getGameBoard().isOver()) {   //aca dentro va lo del text de turno
-            Player actualPlayer = game.getCurrentPlayer();
-            if (actualPlayer.isAI()) {
-                ((AIPlayer) actualPlayer).calculateAndMakeMove();
-            } else {
-                Move moveToMake = getMove();
-                actualPlayer.makeMovePlayer(moveToMake);
-            }
+        Button nextTurn = new Button("NEXT TURN");
+        nextTurn.setDefaultButton(true);
 
-            board.isCache();
-            board.refreshBoard();
-        }
-    }
+        nextTurn.setPrefSize(100, 25);
 
-    private Move getMove() {
-        Move move = null;
-        cont = 0;
-        while (move == null) {
-            scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent mouseEvent) {
-                    if (board.existMove((int) mouseEvent.getX(), (int) mouseEvent.getY())) {
-                        cords[cont] = new Coordinates((int) mouseEvent.getX(), (int) mouseEvent.getY());
-                        cont++;
+        nextTurn.setLayoutX(600);
+        nextTurn.setLayoutY(125);
+
+        board.getChildren().add(nextTurn);
+        nextTurn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                if (!game.getGameBoard().isOver()) {   //aca dentro va lo del text de turno
+                    Player actualPlayer = game.getCurrentPlayer();
+                    if (actualPlayer.isAI()) {
+                        try {
+                            ((AIPlayer) actualPlayer).calculateAndMakeMove();
+                        } catch (MinimaxException ex) {
+                            System.out.println(ex);
+                        }
+                    } else {
+                        try {
+                            actualPlayer.makeMovePlayer(lastMoveClicked);
+                        } catch (InvalidMoveException ex) {
+                            System.out.println(ex);
+                        }
+                        lastMoveClicked = null;
                     }
-                }
-            });
-            if (cont == 2) { // ya tengo 2 puntos
-                if (board.validMove(cords[0].x, cords[0].y, cords[1].x, cords[1].y)) { //si es un movimiento valido lo creo
-                    move = new Move(cords[0].y / 30, cords[0].x / 30, cords[1].y / 30, cords[1].x / 30);
-                } else {   //preparo espera de dos puntos nuevos
-                    cont = 0;
+
+                    board.isCache();
+                    board.refreshBoard();
                 }
             }
-        }
-        System.out.println(move);
-        return move;
-    }
+        });
 
+        scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                //ACA VOY A MODIFICAR lastMoveClicked cada vez que hace un clic en un arista
+            }
+        });
+
+    }
 
     private class Coordinates {
         private int x;

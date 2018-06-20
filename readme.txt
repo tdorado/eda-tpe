@@ -1,0 +1,1 @@
+java -jar target/Timbiriche-0.0.1-SNAPSHOT.jar -size 10 -ai 3 -mode time -param 1 -prune on -load test
