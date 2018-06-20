@@ -6,6 +6,9 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Class for the moves of the game
+ */
 public class Move implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 1L;
@@ -54,10 +57,6 @@ public class Move implements Serializable, Cloneable {
         return colTo;
     }
 
-    public boolean isVertical(){
-        return colFrom == colTo;
-    }
-
     public boolean isHorizontal(){
         return rowFrom == rowTo;
     }
@@ -84,6 +83,11 @@ public class Move implements Serializable, Cloneable {
         return "(" + rowFrom + ", "  + colFrom + ")( " + rowTo + ", " + colTo + ')';
     }
 
+    /**
+     * Serialization method for saveGame and loadGame
+     * @param out
+     * @throws IOException
+     */
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         out.writeInt(rowFrom);
@@ -92,6 +96,12 @@ public class Move implements Serializable, Cloneable {
         out.writeInt(colTo);
     }
 
+    /**
+     * Serialization method for saveGame and loadGame
+     * @param ois
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
         rowFrom = ois.readInt();

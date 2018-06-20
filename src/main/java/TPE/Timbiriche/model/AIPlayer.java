@@ -8,6 +8,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Class for the AI
+ */
 public class AIPlayer extends Player implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -31,23 +34,43 @@ public class AIPlayer extends Player implements Serializable {
         this(aiMode, aiModeParam, prune, 0, game);
     }
 
+    /**
+     * Method that returns true because this Player is AI
+     * @return boolean
+     */
     @Override
     public boolean isAI(){
         return true;
     }
 
+    /**
+     * Method that changes the mode for the minimax, only used in loadGame
+     * @param aiMode int
+     */
     void setAiMode(int aiMode) {
         this.aiMode = aiMode;
     }
 
+    /**
+     * Method that sets the parameter for the mode of the minimax, only used in loadGame
+     * @param aiModeParam int
+     */
     void setAiModeParam(int aiModeParam) {
         this.aiModeParam = aiModeParam;
     }
 
+    /**
+     * Method that sets the prune on or off for the minimax, only used in loadGame
+     * @param prune boolean
+     */
     void setPrune(boolean prune) {
         this.prune = prune;
     }
 
+    /**
+     * Method that calculates the move using minimax algorithm with the parameters already saved
+     * @throws MinimaxException
+     */
     public void calculateAndMakeMove() throws MinimaxException {
         LinkedList<Move> moves = minimax();
         for(Move move : moves) {
@@ -55,6 +78,11 @@ public class AIPlayer extends Player implements Serializable {
         }
     }
 
+    /**
+     * Method that gets the moves that the AI has to make
+     * @return List of moves to be made by de AIPlayer
+     * @throws MinimaxException
+     */
     private LinkedList<Move> minimax() throws MinimaxException {
         lastMoveState = new MoveState(false);
         if(aiMode == 0){
@@ -71,6 +99,15 @@ public class AIPlayer extends Player implements Serializable {
         return null;
     }
 
+    /**
+     * Method for the minimax recurrence in depth
+     * @param movesCount int of how many moves were done in this recurrence
+     * @param previousMoveState the MoveState that needs this recurrence
+     * @param depth int of the current depth
+     * @param sameLevel boolean if the play has more than one move
+     * @param maxOrMin boolean if max or min of the minimax
+     * @return int minimax value
+     */
     private int minimaxDepthRec(int movesCount, MoveState previousMoveState, int depth, boolean sameLevel, boolean maxOrMin){
         if(maxOrMin) {  // MAX
             if(!game.getGameBoard().getPossibleMoves().isEmpty()) {
@@ -264,6 +301,15 @@ public class AIPlayer extends Player implements Serializable {
         return previousMoveState.chosen.value;
     }
 
+    /**
+     * Method for the minimax recurrence in time
+     * @param movesCount int of how many moves were done in this recurrence
+     * @param previousMoveState the MoveState that needs this recurrence
+     * @param sameLevel boolean if the play has more than one move
+     * @param maxOrMin boolean if max or min of the minimax
+     * @param secondsMax long for the maximum of seconds the method has to be done for
+     * @return int minimax value
+     */
     private int minimaxTimeRec(int movesCount, MoveState previousMoveState, boolean sameLevel, boolean maxOrMin, long secondsMax){
         if(maxOrMin) {  // MAX
             if(!game.getGameBoard().getPossibleMoves().isEmpty()) {
@@ -487,6 +533,10 @@ public class AIPlayer extends Player implements Serializable {
         return previousMoveState.chosen.value;
     }
 
+    /**
+     * Heuristic for the minimax
+     * @return int heuristic value
+     */
     private int heuristicValue(){
         if(game.getGameBoard().isOver()){
             if(getOtherPlayer().getPoints() > points){
@@ -502,6 +552,10 @@ public class AIPlayer extends Player implements Serializable {
         return points - getOtherPlayer().getPoints();
     }
 
+    /**
+     * Method used for the heuristic value that returns the player that currently does not have to play
+     * @return Player
+     */
     private Player getOtherPlayer() {
         if(game.getCurrentPlayer() == this){
             return game.getNotCurrentPlayer();
@@ -509,7 +563,11 @@ public class AIPlayer extends Player implements Serializable {
         return game.getCurrentPlayer();
     }
 
-
+    /**
+     * Method to create the last minimax in .dot format
+     * @param fileName name of the file
+     * @return true if create, false if not
+     */
     public boolean makeDotFile(String fileName){
         if(lastMoveState == null){
             return false;
@@ -550,6 +608,13 @@ public class AIPlayer extends Player implements Serializable {
         return true;
     }
 
+    /**
+     * Recurrence for the dot file
+     * @param writer writer
+     * @param moveState current MoveState
+     * @param nodeNumber current node index
+     * @return int of how many nodes were printed
+     */
     private int makeDotFileRec(PrintWriter writer, MoveState moveState, int nodeNumber){
         int nodeNumberFrom = nodeNumber++;
         for(MoveState moveStateChild : moveState.children){
@@ -585,6 +650,9 @@ public class AIPlayer extends Player implements Serializable {
         return nodeNumber;
     }
 
+    /**
+     * Class used to save all the recurrences of the minimax search
+     */
     private class MoveState{
         private LinkedList<Move> moves;
         private Integer value;
@@ -613,6 +681,11 @@ public class AIPlayer extends Player implements Serializable {
         }
     }
 
+    /**
+     * Serialization method for saveGame and loadGame
+     * @param out
+     * @throws IOException
+     */
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         out.writeInt(points);
@@ -622,6 +695,11 @@ public class AIPlayer extends Player implements Serializable {
         out.writeBoolean(prune);
     }
 
+    /**
+     * Serialization method for saveGame and loadGame
+     * @param ois
+     * @throws IOException
+     */
     private void readObject(ObjectInputStream ois) throws IOException,ClassNotFoundException{
         ois.defaultReadObject();
         points = ois.readInt();

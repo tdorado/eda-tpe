@@ -6,6 +6,9 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ * Class for a move done
+ */
 public class MoveDone implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -18,10 +21,18 @@ public class MoveDone implements Serializable {
         this.player = player;
     }
 
+    /**
+     * Returns player that made this move
+     * @return Player
+     */
     public Player getPlayer() {
         return player;
     }
 
+    /**
+     * Returns move of this done move
+     * @return
+     */
     public Move getMove() {
         return move;
     }
@@ -39,12 +50,23 @@ public class MoveDone implements Serializable {
         return move.hashCode();
     }
 
+    /**
+     * Serialization method for saveGame and loadGame
+     * @param out
+     * @throws IOException
+     */
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         out.writeObject(move);
         out.writeObject(player);
     }
 
+    /**
+     * Serialization method for saveGame and loadGame
+     * @param ois
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
         move = (Move)ois.readObject();

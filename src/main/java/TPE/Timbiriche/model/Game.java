@@ -53,6 +53,10 @@ public class Game implements Serializable {
         return player2;
     }
 
+    /**
+     * Method that undoes the last move and returns the undone move
+     * @return MoveDone undone
+     */
     public MoveDone undoLastMove() {
         if (undoStack.isEmpty())
             return null;
@@ -127,6 +131,10 @@ public class Game implements Serializable {
         return true;
     }
 
+    /**
+     * Method that returns lasts move done by a player
+     * @return List of MoveDone
+     */
     public List<MoveDone> getLastMovesDone() {
         LinkedList<MoveDone> result = new LinkedList<>();
         result.add(undoStack.peek());
@@ -242,17 +250,11 @@ public class Game implements Serializable {
         }
     }
 
-    int getCurrentPlayerTurn() {
-        return currentPlayerTurn;
-    }
-
-    int getNotCurrentPlayerTurn() {
-        if (currentPlayerTurn == 1) {
-            return 2;
-        }
-        return 1;
-    }
-
+    /**
+     * Serialization method for saveGame and loadGame
+     * @param out
+     * @throws IOException
+     */
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         out.writeObject(gameBoard);
@@ -263,6 +265,12 @@ public class Game implements Serializable {
         out.writeInt(currentPlayerTurn);
     }
 
+    /**
+     * Serialization method for saveGame and loadGame
+     * @param ois
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
         gameBoard = (GameBoard) ois.readObject();
@@ -271,23 +279,5 @@ public class Game implements Serializable {
         player1 = (Player) ois.readObject();
         player2 = (Player) ois.readObject();
         currentPlayerTurn = ois.readInt();
-    }
-
-    Game deepCopy() {
-        Game result;
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            oos.writeObject(this);
-            oos.flush();
-            oos.close();
-            bos.close();
-            byte[] byteData = bos.toByteArray();
-            ByteArrayInputStream bais = new ByteArrayInputStream(byteData);
-            result = (Game) new ObjectInputStream(bais).readObject();
-        } catch (Exception e) {
-            result = null;
-        }
-        return result;
     }
 }

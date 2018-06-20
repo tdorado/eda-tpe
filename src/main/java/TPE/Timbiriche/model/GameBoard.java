@@ -9,6 +9,9 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Class for the board of the game
+ */
 public class GameBoard implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -60,6 +63,9 @@ public class GameBoard implements Serializable {
         return size;
     }
 
+    /**
+     * Method that initializes the squares with int 4, and creates all possible moves and shuffles them
+     */
     private void initializeGameBoard() {
         for(int i = 0; i < (size - 1) * (size - 1); i++){
             squares[i] = 4;
@@ -83,12 +89,22 @@ public class GameBoard implements Serializable {
         possibleMoves.addAll(aux);
     }
 
+    /**
+     * Returns true it the move is valid, false if not
+     * @param move Move
+     * @return Boolean
+     */
     private boolean validMove(Move move){
         if(!isOver())
             return possibleMoves.contains(move);
         return false;
     }
 
+    /**
+     * Method that undoes the moveDone, and returns the points that this move had won.
+     * @param moveDone MoveDone
+     * @return int
+     */
     int undoMove(MoveDone moveDone){
         Move move = moveDone.getMove();
         if(movesDone.remove(moveDone)){
@@ -130,6 +146,11 @@ public class GameBoard implements Serializable {
         return -1;
     }
 
+    /**
+     * Method that makes a move and returns the points earned with that move or -1 if it is not a correct move
+     * @param moveDone MoveDone
+     * @return int
+     */
     int makeMove(MoveDone moveDone){
         Move move = moveDone.getMove();
         if(validMove(move)){
@@ -171,6 +192,11 @@ public class GameBoard implements Serializable {
         return -1;
     }
 
+    /**
+     * Method used to locate which index of the squares array the move has to use
+     * @param move Move
+     * @return SquareIndex
+     */
     private SquareIndex locateSquareIndex(Move move){
         SquareIndex squareIndex = new SquareIndex();
 
@@ -203,11 +229,19 @@ public class GameBoard implements Serializable {
         return squareIndex;
     }
 
+    /**
+     * Class used to locate which index of the squares array a Move hast to use
+     */
     private class SquareIndex{
         private int index;
         private boolean flagNotMid;
     }
 
+    /**
+     * Serialization method for saveGame and loadGame
+     * @param out
+     * @throws IOException
+     */
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         out.writeInt(size);
@@ -216,6 +250,12 @@ public class GameBoard implements Serializable {
         out.writeObject(possibleMoves);
     }
 
+    /**
+     * Serialization method for saveGame and loadGame
+     * @param ois
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     private void readObject(ObjectInputStream ois) throws IOException,ClassNotFoundException{
         ois.defaultReadObject();
         size = ois.readInt();
