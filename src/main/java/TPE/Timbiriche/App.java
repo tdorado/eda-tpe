@@ -32,20 +32,11 @@ public class App extends Application {
     private Scene scene;
     private Board board;
     private Button nextTurn;
-    private Coordinates cords[] = new Coordinates[2];
-    private int cont;
-    private static Text points1 = new Text(600, 150, "0");
-    private static Text points2 = new Text(600, 175, "0");
+    private Coordinates cord1 = new Coordinates(0, 0);
+    private Coordinates cord2 = new Coordinates(0, 0);
+    private int cont = 0;
 
     private Move lastMoveClicked = null;
-
-    public static Text getPoints1() {
-        return points1;
-    }
-
-    public static Text getPoints2() {
-        return points2;
-    }
 
     public static void main(String[] args) {
         game = null;
@@ -189,7 +180,7 @@ public class App extends Application {
         save.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
                 try {
-                    game.saveGame("Partida");
+                    game.saveGame("partida");
                 } catch (IOException | ClassNotFoundException e1) {
                     e1.printStackTrace();
                 }
@@ -219,8 +210,21 @@ public class App extends Application {
                 int x = (int)event.getX();
                 int y = (int)event.getY();
                 if(board.isCircle(x, y)){
-                    System.out.println(x + " " + y);
-                }
+                    if(cont == 0) {
+                        cord1.x = y / 30;
+                        cord1.y = x / 30;
+                        cont = 1;
+                        board.getFirstClick().setVisible(true);
+                    }
+                    else if(cont == 1){
+                        cord2.x = y / 30;
+                        cord2.y = x / 30;
+                        cont = 2;
+                        board.getSecondClick().setVisible(true);
+                        lastMoveClicked = new Move(cord1.x, cord1.y, cord2.x, cord2.y);
+                        playNextTurn();
+                    }
+                 }
             }
         });
 
@@ -242,7 +246,10 @@ public class App extends Application {
                 } catch (InvalidMoveException ex) {
                     System.out.println(ex);
                 }
+                board.getFirstClick().setVisible(false);
+                board.getSecondClick().setVisible(false);
                 lastMoveClicked = null;
+                cont = 0;
             }
 
             board.refreshBoard();

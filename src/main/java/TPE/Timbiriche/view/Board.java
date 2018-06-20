@@ -9,6 +9,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -22,14 +23,19 @@ public class Board extends Pane {
     private static final int LINE_DISTANCE = 20;
     private static Game g;
 
+    private static Text points1 = new Text(600, 200, "0");
+    private static Text points2 = new Text(600, 250, "0");
+    private static Text firstClick = new Text(600, 300, "First click detected.");
+    private static Text secondClick = new Text(600, 350, "Second click detected");
+
     public Board(Game g) {
         this.g = g;
         initializeBoard();
     }
 
     public void setTexts() {
-        App.getPoints1().setText("Player 1 point: " + g.getPlayer1().getPoints());
-        App.getPoints2().setText("Player 2 point: " + g.getPlayer2().getPoints());
+        points1.setText("Player 1 point: " + g.getPlayer1().getPoints());
+        points2.setText("Player 2 point: " + g.getPlayer2().getPoints());
     }
 
     private void initializeBoard() {
@@ -42,6 +48,20 @@ public class Board extends Pane {
                 getChildren().add(c);
             }
         }
+        getChildren().add(points1);
+        getChildren().add(points2);
+        firstClick.setVisible(false);
+        secondClick.setVisible(false);
+        getChildren().add(firstClick);
+        getChildren().add(secondClick);
+    }
+
+    public Text getFirstClick(){
+        return firstClick;
+    }
+
+    public Text getSecondClick(){
+        return secondClick;
     }
 
     public void refreshBoard() {
@@ -65,7 +85,7 @@ public class Board extends Pane {
 
         arc.setFill(Color.WHITE);
         getChildren().add(arc);
-
+        setTexts();
     }
 
     private Rectangle createLine(MoveDone moveDone) {
