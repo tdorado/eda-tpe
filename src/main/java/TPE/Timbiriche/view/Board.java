@@ -76,7 +76,7 @@ public class Board extends Pane {
         }
     }
 
-    public boolean existMove(int x, int y) {
+    public boolean isCircle(int x, int y) {
         if (x >= 0 && x <= DISTANCE * g.getGameBoard().getSize() && y >= 0 && y <= DISTANCE * g.getGameBoard().getSize()) {
             if (x % DISTANCE <= RADIUS && y % DISTANCE <= RADIUS) {
                 return true;
