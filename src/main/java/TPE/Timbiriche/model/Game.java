@@ -127,6 +127,10 @@ public class Game implements Serializable{
         return true;
     }
 
+    public MoveDone getLastMoveDone(){
+        return undoStack.peek();
+    }
+
     /**
      * Saves the current state of the game with all its values in a file .game
      * @param fileName name of the saved game
