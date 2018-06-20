@@ -6,6 +6,7 @@ import java.io.*;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 public class AIPlayer extends Player implements Serializable {
 
@@ -56,7 +57,13 @@ public class AIPlayer extends Player implements Serializable {
 
     private LinkedList<Move> minimax() throws MinimaxException {
         lastMoveState = new MoveState(false);
-        minimaxDepthRec(0, lastMoveState, 0, false, true);
+        if(aiMode == 0){
+            long timeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
+            minimaxTimeRec(0, lastMoveState, false, true, timeSeconds + (long)aiModeParam + 1);
+        }
+        else {
+            minimaxDepthRec(0, lastMoveState, 0, false, true);
+        }
         System.out.println(lastMoveState.chosen);
         if(lastMoveState.chosen != null) {
             return lastMoveState.chosen.moves;
@@ -65,12 +72,13 @@ public class AIPlayer extends Player implements Serializable {
     }
 
     private int minimaxDepthRec(int movesCount, MoveState previousMoveState, int depth, boolean sameLevel, boolean maxOrMin){
-        if(maxOrMin) {  // EMPIEZA EL MAX
+        if(maxOrMin) {  // MAX
             if(!game.getGameBoard().getPossibleMoves().isEmpty()) {
-                if (sameLevel) {
+                if (sameLevel) { // MAX CON VARIOS MOVS
                     boolean firstEntry = true;
                     HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
                     for (Move move : possibleMoves) {
+                        int auxMovesCount = movesCount;
                         movesCount++;
                         game.getCurrentPlayer().makeMove(move);
                         MoveState currentMoveState;
@@ -100,19 +108,19 @@ public class AIPlayer extends Player implements Serializable {
                             if (previousMoveState.chosen.value < currentMoveState.value) {
                                 previousMoveState.chosen = currentMoveState;
                             }
-                            while(movesCount > 0){
-                                game.undoLastMove();
-                                movesCount--;
-                            }
+                        }
+                        while(movesCount > auxMovesCount){
+                            game.undoLastMove();
+                            movesCount--;
                         }
                     }
-                } else {
+                } else { // MAX CON UN SOLO MOV
                     HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
                     for (Move move : possibleMoves) {
+                        movesCount++;
                         game.getCurrentPlayer().makeMove(move);
                         MoveState currentMoveState = new MoveState(true);
                         currentMoveState.moves.add(move);
-                        movesCount++;
                         previousMoveState.children.add(currentMoveState);
                         if (this == game.getCurrentPlayer()) {
                             minimaxDepthRec(movesCount, previousMoveState, depth, true, true);
@@ -127,10 +135,10 @@ public class AIPlayer extends Player implements Serializable {
                             if (previousMoveState.chosen.value < currentMoveState.value) {
                                 previousMoveState.chosen = currentMoveState;
                             }
-                            while(movesCount > 0){
-                                game.undoLastMove();
-                                movesCount--;
-                            }
+                        }
+                        while(movesCount > 0){
+                            game.undoLastMove();
+                            movesCount--;
                         }
                     }
                 }
@@ -144,15 +152,16 @@ public class AIPlayer extends Player implements Serializable {
                     previousMoveState.chosen = currentMoveState;
             }
         }
-        else{ // EMPIEZA EL MIN
+        else{ // MIN
             if(!game.getGameBoard().getPossibleMoves().isEmpty()) {
-                if (sameLevel) {
+                if (sameLevel) { //MIN CON VARIOS MOVS
                     boolean firstEntry = true;
                     HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
                     for (Move move : possibleMoves) {
+                        int auxMovesCount = movesCount;
+                        movesCount++;
                         game.getCurrentPlayer().makeMove(move);
                         MoveState currentMoveState;
-                        movesCount++;
                         if (firstEntry) {
                             currentMoveState = previousMoveState.children.getLast();
                             firstEntry = false;
@@ -193,19 +202,19 @@ public class AIPlayer extends Player implements Serializable {
                                     previousMoveState.chosen = currentMoveState;
                                 }
                             }
-                            while(movesCount > 0){
-                                game.undoLastMove();
-                                movesCount--;
-                            }
+                        }
+                        while(movesCount > auxMovesCount){
+                            game.undoLastMove();
+                            movesCount--;
                         }
                     }
-                } else {
+                } else { //MIN CON UN SOLO MOV
                     HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
                     for (Move move : possibleMoves) {
+                        movesCount++;
                         game.getCurrentPlayer().makeMove(move);
                         MoveState currentMoveState = new MoveState(false);
                         currentMoveState.moves.add(move);
-                        movesCount++;
                         previousMoveState.children.add(currentMoveState);
                         if (this != game.getCurrentPlayer()) {
                             minimaxDepthRec(movesCount, previousMoveState, depth, true, false);
@@ -235,10 +244,10 @@ public class AIPlayer extends Player implements Serializable {
                                     previousMoveState.chosen = currentMoveState;
                                 }
                             }
-                            while(movesCount > 0){
-                                game.undoLastMove();
-                                movesCount--;
-                            }
+                        }
+                        while(movesCount > 0){
+                            game.undoLastMove();
+                            movesCount--;
                         }
                     }
                 }
@@ -255,411 +264,204 @@ public class AIPlayer extends Player implements Serializable {
         return previousMoveState.chosen.value;
     }
 
-//    private int minimaxDepthRec(Game gamePhase, MoveState previousMoveState, int depth, boolean sameLevel, boolean maxOrMin, int currentTurn) throws MinimaxException {
-//        if(gamePhase == null){
-//            throw new MinimaxException();
-//        }
-//        if(maxOrMin) {  // EMPIEZA EL MAX
-//            if(!gamePhase.getGameBoard().getPossibleMoves().isEmpty()) {
-//                if (sameLevel) {
-//                    boolean firstEntry = true;
-//                    for (Move move : gamePhase.getGameBoard().getPossibleMoves()) {
-//                        Game gamePhaseCopy = gamePhase.deepCopy();
-//                        gamePhaseCopy.getCurrentPlayer().makeMove(move);
-//                        MoveState currentMoveState;
-//                        if (firstEntry) {
-//                            currentMoveState = previousMoveState.children.getLast();
-//                            firstEntry = false;
-//                        } else {
-//                            currentMoveState = new MoveState(true);
-//                            LinkedList<Move> moves = previousMoveState.children.getLast().moves;
-//                            for (int i = 0; i < moves.size() - 1; i++) {
-//                                currentMoveState.moves.add(moves.get(i));
-//                            }
-//                            previousMoveState.children.add(currentMoveState);
-//                        }
-//                        currentMoveState.moves.add(move);
-//                        if (currentTurn == gamePhaseCopy.getCurrentPlayerTurn()) {
-//                            minimaxDepthRec(gamePhaseCopy, previousMoveState, depth, true, true, currentTurn);
-//                        } else {
-//                            if (previousMoveState.chosen == null) {
-//                                previousMoveState.chosen = currentMoveState;
-//                            }
-//                            if (depth < aiModeParam) {
-//                                currentMoveState.value = minimaxDepthRec(gamePhaseCopy, currentMoveState, depth + 1, false, false, currentTurn);
-//                            } else {
-//                                currentMoveState.value = ((AIPlayer) gamePhaseCopy.getNotCurrentPlayer()).heuristicValue();
-//                            }
-//                            if (previousMoveState.chosen.value < currentMoveState.value) {
-//                                previousMoveState.chosen = currentMoveState;
-//                            }
-//                        }
-//                    }
-//                } else {
-//                    for (Move move : gamePhase.getGameBoard().getPossibleMoves()) {
-//                        Game gamePhaseCopy = gamePhase.deepCopy();
-//                        gamePhaseCopy.getCurrentPlayer().makeMove(move);
-//                        MoveState currentMoveState = new MoveState(true);
-//                        currentMoveState.moves.add(move);
-//                        previousMoveState.children.add(currentMoveState);
-//                        if (currentTurn == gamePhaseCopy.getCurrentPlayerTurn()) {
-//                            minimaxDepthRec(gamePhaseCopy, previousMoveState, depth, true, true, currentTurn);
-//                        } else {
-//                            if (previousMoveState.chosen == null) {
-//                                previousMoveState.chosen = currentMoveState;
-//                            }
-//                            if (depth < aiModeParam) {
-//                                currentMoveState.value = minimaxDepthRec(gamePhaseCopy, currentMoveState, depth + 1, false, false, currentTurn);
-//                            } else
-//                                currentMoveState.value = ((AIPlayer) gamePhaseCopy.getNotCurrentPlayer()).heuristicValue();
-//                            if (previousMoveState.chosen.value < currentMoveState.value) {
-//                                previousMoveState.chosen = currentMoveState;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            else {
-//                MoveState currentMoveState = previousMoveState.children.getLast();
-//                if (previousMoveState.chosen == null)
-//                    previousMoveState.chosen = currentMoveState;
-//                currentMoveState.value = ((AIPlayer) gamePhase.getCurrentPlayer()).heuristicValue();
-//                if (previousMoveState.chosen.value < currentMoveState.value)
-//                    previousMoveState.chosen = currentMoveState;
-//            }
-//        }
-//        else{ // EMPIEZA EL MIN
-//            if(!gamePhase.getGameBoard().getPossibleMoves().isEmpty()) {
-//                if (sameLevel) {
-//                    boolean firstEntry = true;
-//                    for (Move move : gamePhase.getGameBoard().getPossibleMoves()) {
-//                        Game gamePhaseCopy = gamePhase.deepCopy();
-//                        gamePhaseCopy.getCurrentPlayer().makeMove(move);
-//                        MoveState currentMoveState;
-//                        if (firstEntry) {
-//                            currentMoveState = previousMoveState.children.getLast();
-//                            firstEntry = false;
-//                        } else {
-//                            currentMoveState = new MoveState(false);
-//                            LinkedList<Move> moves = previousMoveState.children.getLast().moves;
-//                            for (int i = 0; i < moves.size() - 1; i++)
-//                                currentMoveState.moves.add(moves.get(i));
-//                            previousMoveState.children.add(currentMoveState);
-//                        }
-//                        currentMoveState.moves.add(move);
-//                        if (currentTurn != gamePhaseCopy.getCurrentPlayerTurn()) {
-//                            minimaxDepthRec(gamePhaseCopy, previousMoveState, depth, true, false, currentTurn);
-//                        } else {
-//                            if (previousMoveState.chosen == null) {
-//                                previousMoveState.chosen = currentMoveState;
-//                            }
-//                            if (prune) {
-//                                currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
-//                                if (previousMoveState.chosen != currentMoveState && previousMoveState.chosen.value <= currentMoveState.value) {
-//                                    currentMoveState.pruned = true;
-//                                }
-//                                if (!currentMoveState.pruned) {
-//                                    if (depth < aiModeParam) {
-//                                        currentMoveState.value = minimaxDepthRec(gamePhaseCopy, currentMoveState, depth + 1, false, true, currentTurn);
-//                                    } else {
-//                                        currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
-//                                    }
-//                                    if (previousMoveState.chosen.value > currentMoveState.value) {
-//                                        previousMoveState.chosen = currentMoveState;
-//                                    }
-//                                }
-//                            } else {
-//                                if (depth < aiModeParam) {
-//                                    currentMoveState.value = minimaxDepthRec(gamePhaseCopy, currentMoveState, depth + 1, false, true, currentTurn);
-//                                } else {
-//                                    currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
-//                                }
-//                                if (previousMoveState.chosen.value > currentMoveState.value) {
-//                                    previousMoveState.chosen = currentMoveState;
-//                                }
-//                            }
-//                        }
-//                    }
-//                } else {
-//                    for (Move move : gamePhase.getGameBoard().getPossibleMoves()) {
-//                        Game gamePhaseCopy = gamePhase.deepCopy();
-//                        gamePhaseCopy.getCurrentPlayer().makeMove(move);
-//                        MoveState currentMoveState = new MoveState(false);
-//                        currentMoveState.moves.add(move);
-//                        previousMoveState.children.add(currentMoveState);
-//                        if (currentTurn != gamePhaseCopy.getCurrentPlayerTurn()) {
-//                            minimaxDepthRec(gamePhaseCopy, previousMoveState, depth, true, false, currentTurn);
-//                        } else {
-//                            if (previousMoveState.chosen == null) {
-//                                previousMoveState.chosen = currentMoveState;
-//                            }
-//                            if (prune) {
-//                                currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
-//                                if (previousMoveState.chosen != currentMoveState && previousMoveState.chosen.value <= currentMoveState.value) {
-//                                    currentMoveState.pruned = true;
-//                                }
-//                                if (!currentMoveState.pruned) {
-//                                    if (depth < aiModeParam) {
-//                                        currentMoveState.value = minimaxDepthRec(gamePhaseCopy, currentMoveState, depth + 1, false, true, currentTurn);
-//                                    } else {
-//                                        currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
-//                                    }
-//                                    if (previousMoveState.chosen.value > currentMoveState.value)
-//                                        previousMoveState.chosen = currentMoveState;
-//                                }
-//                            } else {
-//                                if (depth < aiModeParam) {
-//                                    currentMoveState.value = minimaxDepthRec(gamePhaseCopy, currentMoveState, depth + 1, false, true, currentTurn);
-//                                } else {
-//                                    currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
-//                                }
-//                                if (previousMoveState.chosen.value > currentMoveState.value) {
-//                                    previousMoveState.chosen = currentMoveState;
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            else {
-//                MoveState currentMoveState = previousMoveState.children.getLast();
-//                if (previousMoveState.chosen == null)
-//                    previousMoveState.chosen = currentMoveState;
-//                currentMoveState.value = ((AIPlayer) gamePhase.getCurrentPlayer()).heuristicValue();
-//                if (previousMoveState.chosen.value > currentMoveState.value)
-//                    previousMoveState.chosen = currentMoveState;
-//            }
-//        }
-//        return previousMoveState.chosen.value;
-//    }
-//
-//    private int minimaxTimeRec(Game gamePhase, MoveState previousMoveState, int depth, boolean sameLevel, boolean maxOrMin, int currentTurn) throws MinimaxException {
-//        if(gamePhase == null){
-//            throw new MinimaxException();
-//        }
-//        if(maxOrMin){  // EMPIEZA EL MAX
-//            if(sameLevel){
-//                boolean firstEntry = true;
-//                boolean notMoreMoves = false;
-//                if(gamePhase.getGameBoard().getPossibleMoves().isEmpty()){
-//                    notMoreMoves = true;
-//                }
-//                for (Move move : gamePhase.getGameBoard().getPossibleMoves()) {
-//                    Game gamePhaseCopy = gamePhase.deepCopy();
-//                    gamePhaseCopy.getCurrentPlayer().makeMove(move);
-//                    MoveState currentMoveState;
-//                    if(firstEntry){
-//                        currentMoveState = previousMoveState.children.getLast();
-//                        firstEntry = false;
-//                    }
-//                    else{
-//                        currentMoveState = new MoveState(true);
-//                        LinkedList<Move> moves = previousMoveState.children.getLast().moves;
-//                        for(int i = 0; i < moves.size() - 1; i++){
-//                            currentMoveState.moves.add(moves.get(i));
-//                        }
-//                        previousMoveState.children.add(currentMoveState);
-//                    }
-//                    currentMoveState.moves.add(move);
-//                    if (currentTurn == gamePhaseCopy.getCurrentPlayerTurn()) {
-//                        minimaxTimeRec(gamePhaseCopy, previousMoveState, depth, true, true, currentTurn);
-//                    }
-//                    else{
-//                        if(previousMoveState.chosen == null){
-//                            previousMoveState.chosen = currentMoveState;
-//                        }
-//                        if(depth < aiModeParam){
-//                            currentMoveState.value = minimaxTimeRec(gamePhaseCopy, currentMoveState, depth + 1, false, false, currentTurn);
-//                        }
-//                        else{
-//                            currentMoveState.value = ((AIPlayer)gamePhaseCopy.getNotCurrentPlayer()).heuristicValue();
-//                        }
-//                        if(previousMoveState.chosen.value < currentMoveState.value){
-//                            previousMoveState.chosen = currentMoveState;
-//                        }
-//                    }
-//                }
-//                if(notMoreMoves){
-//                    MoveState currentMoveState = previousMoveState.children.getLast();
-//                    if(previousMoveState.chosen == null){
-//                        previousMoveState.chosen = currentMoveState;
-//                    }
-//                    currentMoveState.value = ((AIPlayer)gamePhase.getNotCurrentPlayer()).heuristicValue();
-//                    if(previousMoveState.chosen.value < currentMoveState.value){
-//                        previousMoveState.chosen = currentMoveState;
-//                    }
-//                }
-//                return previousMoveState.chosen.value;
-//            }
-//            else {
-//                boolean notMoreMoves = false;
-//                if(gamePhase.getGameBoard().getPossibleMoves().isEmpty()){
-//                    notMoreMoves = true;
-//                }
-//                for (Move move : gamePhase.getGameBoard().getPossibleMoves()) {
-//                    Game gamePhaseCopy = gamePhase.deepCopy();
-//                    gamePhaseCopy.getCurrentPlayer().makeMove(move);
-//                    MoveState currentMoveState = new MoveState(true);
-//                    currentMoveState.moves.add(move);
-//                    previousMoveState.children.add(currentMoveState);
-//                    if (currentTurn == gamePhaseCopy.getCurrentPlayerTurn()) {
-//                        minimaxTimeRec(gamePhaseCopy, previousMoveState, depth, true, true, currentTurn);
-//                    }
-//                    else{
-//                        if(previousMoveState.chosen == null){
-//                            previousMoveState.chosen = currentMoveState;
-//                        }
-//                        if(depth < aiModeParam){
-//                            currentMoveState.value = minimaxTimeRec(gamePhaseCopy, currentMoveState, depth + 1, false, false, currentTurn);
-//                        }
-//                        else
-//                            currentMoveState.value = ((AIPlayer)gamePhaseCopy.getNotCurrentPlayer()).heuristicValue();
-//                        if(previousMoveState.chosen.value < currentMoveState.value){
-//                            previousMoveState.chosen = currentMoveState;
-//                        }
-//                    }
-//                }
-//                if(notMoreMoves){
-//                    MoveState currentMoveState = previousMoveState.children.getLast();
-//                    if(previousMoveState.chosen == null)
-//                        previousMoveState.chosen = currentMoveState;
-//                    currentMoveState.value = ((AIPlayer)gamePhase.getNotCurrentPlayer()).heuristicValue();
-//                    if(previousMoveState.chosen.value < currentMoveState.value){
-//                        previousMoveState.chosen = currentMoveState;
-//                    }
-//                }
-//                return previousMoveState.chosen.value;
-//            }
-//        }
-//        else{ // EMPIEZA EL MIN
-//            if(sameLevel){
-//                boolean firstEntry = true;
-//                boolean notMoreMoves = false;
-//                if(gamePhase.getGameBoard().getPossibleMoves().isEmpty()){
-//                    notMoreMoves = true;
-//                }
-//                for (Move move : gamePhase.getGameBoard().getPossibleMoves()) {
-//                    Game gamePhaseCopy = gamePhase.deepCopy();
-//                    gamePhaseCopy.getCurrentPlayer().makeMove(move);
-//                    MoveState currentMoveState;
-//                    if(firstEntry){
-//                        currentMoveState = previousMoveState.children.getLast();
-//                        firstEntry = false;
-//                    }
-//                    else{
-//                        currentMoveState = new MoveState(false);
-//                        LinkedList<Move> moves = previousMoveState.children.getLast().moves;
-//                        for(int i = 0; i < moves.size() - 1; i++)
-//                            currentMoveState.moves.add(moves.get(i));
-//                        previousMoveState.children.add(currentMoveState);
-//                    }
-//                    currentMoveState.moves.add(move);
-//                    if (currentTurn != gamePhaseCopy.getCurrentPlayerTurn()) {
-//                        minimaxTimeRec(gamePhaseCopy, previousMoveState, depth, true, false, currentTurn);
-//                    }
-//                    else{
-//                        if(previousMoveState.chosen == null){
-//                            previousMoveState.chosen = currentMoveState;
-//                        }
-//                        if(prune) {
-//                            currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
-//                            if (previousMoveState.chosen != currentMoveState && previousMoveState.chosen.value <= currentMoveState.value) {
-//                                currentMoveState.pruned = true;
-//                            }
-//                            if(!currentMoveState.pruned) {
-//                                if (depth < aiModeParam) {
-//                                    currentMoveState.value = minimaxTimeRec(gamePhaseCopy, currentMoveState, depth + 1, false, true, currentTurn);
-//                                }
-//                                else {
-//                                    currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
-//                                }
-//                                if (previousMoveState.chosen.value > currentMoveState.value) {
-//                                    previousMoveState.chosen = currentMoveState;
-//                                }
-//                            }
-//                        }
-//                        else{
-//                            if (depth < aiModeParam) {
-//                                currentMoveState.value = minimaxTimeRec(gamePhaseCopy, currentMoveState, depth + 1, false, true, currentTurn);
-//                            } else {
-//                                currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
-//                            }
-//                            if (previousMoveState.chosen.value > currentMoveState.value) {
-//                                previousMoveState.chosen = currentMoveState;
-//                            }
-//                        }
-//                    }
-//                }
-//                if(notMoreMoves){
-//                    MoveState currentMoveState = previousMoveState.children.getLast();
-//                    if(previousMoveState.chosen == null){
-//                        previousMoveState.chosen = currentMoveState;
-//                    }
-//                    currentMoveState.value = ((AIPlayer)gamePhase.getCurrentPlayer()).heuristicValue();
-//                    if(previousMoveState.chosen.value > currentMoveState.value){
-//                        previousMoveState.chosen = currentMoveState;
-//                    }
-//                }
-//                return previousMoveState.chosen.value;
-//            }
-//            else {
-//                boolean notMoreMoves = false;
-//                if(gamePhase.getGameBoard().getPossibleMoves().isEmpty()){
-//                    notMoreMoves = true;
-//                }
-//                for (Move move : gamePhase.getGameBoard().getPossibleMoves()) {
-//                    Game gamePhaseCopy = gamePhase.deepCopy();
-//                    gamePhaseCopy.getCurrentPlayer().makeMove(move);
-//                    MoveState currentMoveState = new MoveState(false);
-//                    currentMoveState.moves.add(move);
-//                    previousMoveState.children.add(currentMoveState);
-//                    if (currentTurn != gamePhaseCopy.getCurrentPlayerTurn()) {
-//                        minimaxTimeRec(gamePhaseCopy, previousMoveState, depth, true, false, currentTurn);
-//                    }
-//                    else{
-//                        if(previousMoveState.chosen == null){
-//                            previousMoveState.chosen = currentMoveState;
-//                        }
-//                        if(prune) {
-//                            currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
-//                            if (previousMoveState.chosen != currentMoveState && previousMoveState.chosen.value <= currentMoveState.value) {
-//                                currentMoveState.pruned = true;
-//                            }
-//                            if(!currentMoveState.pruned) {
-//                                if (depth < aiModeParam) {
-//                                    currentMoveState.value = minimaxTimeRec(gamePhaseCopy, currentMoveState, depth + 1, false, true, currentTurn);
-//                                }
-//                                else {
-//                                    currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
-//                                }
-//                                if (previousMoveState.chosen.value > currentMoveState.value)
-//                                    previousMoveState.chosen = currentMoveState;
-//                            }
-//                        }
-//                        else{
-//                            if (depth < aiModeParam) {
-//                                currentMoveState.value = minimaxTimeRec(gamePhaseCopy, currentMoveState, depth + 1, false, true, currentTurn);
-//                            } else {
-//                                currentMoveState.value = ((AIPlayer) gamePhaseCopy.getCurrentPlayer()).heuristicValue();
-//                            }
-//                            if (previousMoveState.chosen.value > currentMoveState.value) {
-//                                previousMoveState.chosen = currentMoveState;
-//                            }
-//                        }
-//                    }
-//                }
-//                if(notMoreMoves){
-//                    MoveState currentMoveState = previousMoveState.children.getLast();
-//                    if(previousMoveState.chosen == null)
-//                        previousMoveState.chosen = currentMoveState;
-//                    currentMoveState.value = ((AIPlayer)gamePhase.getCurrentPlayer()).heuristicValue();
-//                    if(previousMoveState.chosen.value > currentMoveState.value)
-//                        previousMoveState.chosen = currentMoveState;
-//                }
-//                return previousMoveState.chosen.value;
-//            }
-//        }
-//    }
+    private int minimaxTimeRec(int movesCount, MoveState previousMoveState, boolean sameLevel, boolean maxOrMin, long secondsMax){
+        if(maxOrMin) {  // MAX
+            if(!game.getGameBoard().getPossibleMoves().isEmpty()) {
+                if (sameLevel) { // MAX CON VARIOS MOVS
+                    boolean firstEntry = true;
+                    HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
+                    for (Move move : possibleMoves) {
+                        int auxMovesCount = movesCount;
+                        movesCount++;
+                        game.getCurrentPlayer().makeMove(move);
+                        MoveState currentMoveState;
+                        if (firstEntry) {
+                            currentMoveState = previousMoveState.children.getLast();
+                            firstEntry = false;
+                        } else {
+                            currentMoveState = new MoveState(true);
+                            LinkedList<Move> moves = previousMoveState.children.getLast().moves;
+                            for (int i = 0; i < moves.size() - 1; i++) {
+                                currentMoveState.moves.add(moves.get(i));
+                            }
+                            previousMoveState.children.add(currentMoveState);
+                        }
+                        currentMoveState.moves.add(move);
+                        if (this == game.getCurrentPlayer()) {
+                            minimaxTimeRec(movesCount, previousMoveState, true, true, secondsMax);
+                        } else {
+                            if (previousMoveState.chosen == null) {
+                                previousMoveState.chosen = currentMoveState;
+                            }
+                            long timeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
+                            if (timeSeconds < secondsMax) {
+                                currentMoveState.value = minimaxTimeRec(0, currentMoveState, false, false, secondsMax);
+                            } else {
+                                currentMoveState.value = ((AIPlayer) game.getNotCurrentPlayer()).heuristicValue();
+                            }
+                            if (previousMoveState.chosen.value < currentMoveState.value) {
+                                previousMoveState.chosen = currentMoveState;
+                            }
+                        }
+                        while(movesCount > auxMovesCount){
+                            game.undoLastMove();
+                            movesCount--;
+                        }
+                    }
+                } else { // MAX CON UN SOLO MOV
+                    HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
+                    for (Move move : possibleMoves) {
+                        movesCount++;
+                        game.getCurrentPlayer().makeMove(move);
+                        MoveState currentMoveState = new MoveState(true);
+                        currentMoveState.moves.add(move);
+                        previousMoveState.children.add(currentMoveState);
+                        if (this == game.getCurrentPlayer()) {
+                            minimaxTimeRec(movesCount, previousMoveState, true, true, secondsMax);
+                        } else {
+                            if (previousMoveState.chosen == null) {
+                                previousMoveState.chosen = currentMoveState;
+                            }
+                            long timeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
+                            if (timeSeconds < secondsMax) {
+                                currentMoveState.value = minimaxTimeRec(0, currentMoveState, false, false, secondsMax);
+                            } else
+                                currentMoveState.value = ((AIPlayer) game.getNotCurrentPlayer()).heuristicValue();
+                            if (previousMoveState.chosen.value < currentMoveState.value) {
+                                previousMoveState.chosen = currentMoveState;
+                            }
+                        }
+                        while(movesCount > 0){
+                            game.undoLastMove();
+                            movesCount--;
+                        }
+                    }
+                }
+            }
+            else {
+                MoveState currentMoveState = previousMoveState.children.getLast();
+                if (previousMoveState.chosen == null)
+                    previousMoveState.chosen = currentMoveState;
+                currentMoveState.value = ((AIPlayer) game.getCurrentPlayer()).heuristicValue();
+                if (previousMoveState.chosen.value < currentMoveState.value)
+                    previousMoveState.chosen = currentMoveState;
+            }
+        }
+        else{ // MIN
+            if(!game.getGameBoard().getPossibleMoves().isEmpty()) {
+                if (sameLevel) { //MIN CON VARIOS MOVS
+                    boolean firstEntry = true;
+                    HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
+                    for (Move move : possibleMoves) {
+                        int auxMovesCount = movesCount;
+                        movesCount++;
+                        game.getCurrentPlayer().makeMove(move);
+                        MoveState currentMoveState;
+                        if (firstEntry) {
+                            currentMoveState = previousMoveState.children.getLast();
+                            firstEntry = false;
+                        } else {
+                            currentMoveState = new MoveState(false);
+                            LinkedList<Move> moves = previousMoveState.children.getLast().moves;
+                            for (int i = 0; i < moves.size() - 1; i++)
+                                currentMoveState.moves.add(moves.get(i));
+                            previousMoveState.children.add(currentMoveState);
+                        }
+                        currentMoveState.moves.add(move);
+                        if (this != game.getCurrentPlayer()) {
+                            minimaxTimeRec(movesCount, previousMoveState, true, false, secondsMax);
+                        } else {
+                            if (previousMoveState.chosen == null) {
+                                previousMoveState.chosen = currentMoveState;
+                            }
+                            if (prune) {
+                                currentMoveState.value = ((AIPlayer) game.getCurrentPlayer()).heuristicValue();
+                                if (previousMoveState.chosen != currentMoveState && previousMoveState.chosen.value <= currentMoveState.value) {
+                                    currentMoveState.pruned = true;
+                                }
+                                if (!currentMoveState.pruned) {
+                                    long timeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
+                                    if (timeSeconds < secondsMax) {
+                                        currentMoveState.value = minimaxTimeRec(0, currentMoveState, false, true, secondsMax);
+                                    }
+                                    if (previousMoveState.chosen.value > currentMoveState.value) {
+                                        previousMoveState.chosen = currentMoveState;
+                                    }
+                                }
+                            } else {
+                                long timeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
+                                if (timeSeconds < secondsMax) {
+                                    currentMoveState.value = minimaxTimeRec(0, currentMoveState, false, true, secondsMax);
+                                } else {
+                                    currentMoveState.value = ((AIPlayer) game.getCurrentPlayer()).heuristicValue();
+                                }
+                                if (previousMoveState.chosen.value > currentMoveState.value) {
+                                    previousMoveState.chosen = currentMoveState;
+                                }
+                            }
+                        }
+                        while(movesCount > auxMovesCount){
+                            game.undoLastMove();
+                            movesCount--;
+                        }
+                    }
+                } else { //MIN CON UN SOLO MOV
+                    HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
+                    for (Move move : possibleMoves) {
+                        movesCount++;
+                        game.getCurrentPlayer().makeMove(move);
+                        MoveState currentMoveState = new MoveState(false);
+                        currentMoveState.moves.add(move);
+                        previousMoveState.children.add(currentMoveState);
+                        if (this != game.getCurrentPlayer()) {
+                            minimaxTimeRec(movesCount, previousMoveState, true, false, secondsMax);
+                        } else {
+                            if (previousMoveState.chosen == null) {
+                                previousMoveState.chosen = currentMoveState;
+                            }
+                            if (prune) {
+                                currentMoveState.value = ((AIPlayer) game.getCurrentPlayer()).heuristicValue();
+                                if (previousMoveState.chosen != currentMoveState && previousMoveState.chosen.value <= currentMoveState.value) {
+                                    currentMoveState.pruned = true;
+                                }
+                                if (!currentMoveState.pruned) {
+                                    long timeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
+                                    if (timeSeconds < secondsMax) {
+                                        currentMoveState.value = minimaxTimeRec(0, currentMoveState, false, true, secondsMax);
+                                    }
+                                    if (previousMoveState.chosen.value > currentMoveState.value)
+                                        previousMoveState.chosen = currentMoveState;
+                                }
+                            } else {
+                                long timeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
+                                if (timeSeconds < secondsMax) {
+                                    currentMoveState.value = minimaxTimeRec(0, currentMoveState, false, true, secondsMax);
+                                } else {
+                                    currentMoveState.value = ((AIPlayer) game.getCurrentPlayer()).heuristicValue();
+                                }
+                                if (previousMoveState.chosen.value > currentMoveState.value) {
+                                    previousMoveState.chosen = currentMoveState;
+                                }
+                            }
+                        }
+                        while(movesCount > 0){
+                            game.undoLastMove();
+                            movesCount--;
+                        }
+                    }
+                }
+            }
+            else {
+                MoveState currentMoveState = previousMoveState.children.getLast();
+                if (previousMoveState.chosen == null)
+                    previousMoveState.chosen = currentMoveState;
+                currentMoveState.value = ((AIPlayer) game.getCurrentPlayer()).heuristicValue();
+                if (previousMoveState.chosen.value > currentMoveState.value)
+                    previousMoveState.chosen = currentMoveState;
+            }
+        }
+        return previousMoveState.chosen.value;
+    }
 
     private int heuristicValue(){
         if(game.getGameBoard().isOver()){
