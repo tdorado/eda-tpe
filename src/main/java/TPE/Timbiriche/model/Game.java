@@ -4,6 +4,8 @@ import TPE.Timbiriche.model.exceptions.DotCreationException;
 import TPE.Timbiriche.model.exceptions.WrongParametersException;
 
 import java.io.*;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.Stack;
 
@@ -127,8 +129,19 @@ public class Game implements Serializable{
         return true;
     }
 
-    public MoveDone getLastMoveDone(){
-        return undoStack.peek();
+    public List<MoveDone> getLastMoveDone(){
+        LinkedList<MoveDone> result = new LinkedList<>();
+        result.add(undoStack.peek());
+        boolean flag = false;
+        for(int i = 1 ; i < undoStack.size() && !flag; i++){
+            if(undoStack.get(i).getPlayer() == result.getFirst().getPlayer()){
+                result.add(undoStack.get(i));
+            }
+            else{
+                flag = true;
+            }
+        }
+        return result;
     }
 
     /**
