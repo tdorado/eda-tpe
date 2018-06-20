@@ -204,6 +204,8 @@ public class App extends Application {
         board.getChildren().add(save);
 
 
+        Text turno = new Text(600,125,"");
+
 
         undo.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
@@ -242,27 +244,30 @@ public class App extends Application {
 
     private Move getMove(){
         Move move = null;
-        do{
+        cont = 0;
+        while(move == null){
             scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent mouseEvent) {
-                    cont = 0;
-                    if(board.validateCoordinates((int)mouseEvent.getX(),(int)mouseEvent.getY())){
+                    if(board.existMove((int)mouseEvent.getX(),(int)mouseEvent.getY())){
                         cords[cont] = new Coordinates((int)mouseEvent.getX(),(int)mouseEvent.getY());
                         cont++;
                     }
                 }
             });
-            if(cont ==2 && board.validateCoordinates(cords[1].x, cords[1].y)){
-                move = new Move( cords[0].x, cords[0].y, cords[1].x, cords[1].y);
+            if(cont == 2){ // ya tengo 2 puntos
+                if(board.validMove(cords[0].x,cords[0].y,cords[1].x,cords[1].y)){ //si es un movimiento valido lo creo
+                    move = new Move(cords[0].y / 30,cords[0].x / 30,cords[1].y / 30,cords[1].x / 30);
+                }
+                else{   //preparo espera de dos puntos nuevos
+                    cont = 0;
+                }
             }
-            else {
-                cont = 0;
-            }
-        }while(cont < 2);
+        }
         System.out.println(move);
         return move;
     }
+
 
     private class Coordinates{
         private int x;

@@ -11,6 +11,7 @@ import javafx.scene.shape.Rectangle;
 public class Board extends Pane {
 
     private static final int DISTANCE = 30;
+    private static final int RADIUS = 5;
     private static Game g;
 
     public Board(Game g){
@@ -62,15 +63,20 @@ public class Board extends Pane {
             getChildren().add(arc);
         }
     }
-
-    public boolean validateCoordinates(int x, int y){
-        for(int i = 0;i < g.getGameBoard().getSize();i++){
-            for(int j = 0;j < g.getGameBoard().getSize();j++) {
-                if(x == i * DISTANCE && y == j * DISTANCE){
-                    return true;
-                }
+    public boolean existMove(int x,int y){
+        if(x >= 0 && x <= DISTANCE * g.getGameBoard().getSize()  && y >= 0 && y <= DISTANCE * g.getGameBoard().getSize() ){ //esta dentro del tablero
+            if(x % DISTANCE <= 5 && y % DISTANCE <= 5){ //esta dentro del radio de un punto
+                return true;
             }
         }
         return false;
     }
+    public boolean validMove(int x1,int y1,int x2, int y2){
+        if(Math.sqrt(Math.pow(x2 - x1 ,2) + Math.pow(y2 - y1 ,2)) <= DISTANCE + 2 * RADIUS)
+        {
+            return true;
+        }
+        return false;
+    }
+
 }
