@@ -140,9 +140,8 @@ public class App extends Application {
                 error = true;
             }
             if(!error) {
-                testDeAIPlayer();
-                return;
-                //launch(args);
+                //testDeAIPlayer();
+                launch(args);
             }
             else{
                 System.out.println("\nError: Wrong input parameters, please try again.");
