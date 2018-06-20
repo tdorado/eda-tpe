@@ -5,6 +5,7 @@ import TPE.Timbiriche.model.exceptions.InvalidMoveException;
 import TPE.Timbiriche.model.exceptions.MinimaxException;
 import TPE.Timbiriche.view.Board;
 import javafx.application.Application;
+import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -28,6 +29,7 @@ public class App extends Application {
     private static Game game;
     private Scene scene;
     private Board board;
+    private Button nextTurn;
     private Coordinates cords[] = new Coordinates[2];
     private int cont;
     private static Text points1 = new Text(600, 150, "0");
@@ -147,56 +149,13 @@ public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-
-
-//
-//        Button undo = new Button("UNDO");
-//        undo.setDefaultButton(true);
-//
-//        undo.setPrefSize(100, 25);
-//
-//        undo.setLayoutX(600);
-//        undo.setLayoutY(25);
-//
-//        board.getChildren().add(undo);
-//
-//        Button save = new Button("SAVE");
-//        save.setDefaultButton(true);
-//
-//        save.setPrefSize(100, 25);
-//
-//        save.setLayoutX(600);
-//        save.setLayoutY(75);
-//
-//        board.getChildren().add(save);
-//
-//
-//
-//        undo.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override public void handle(ActionEvent e) {
-//                game.undoLastMove();
-//            }
-//        });
-//
-//        save.setOnAction(new EventHandler<ActionEvent>() {
-//            @Override public void handle(ActionEvent e) {
-//                try {
-//                    game.saveGame("Partida");
-//                } catch (IOException e1) {
-//                    e1.printStackTrace();
-//                } catch (ClassNotFoundException e1) {
-//                    e1.printStackTrace();
-//                }
-//            }
-//        });
-
         board = new Board(game);
 
         scene = new Scene(board, 800, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        Button nextTurn = new Button("NEXT TURN");
+        nextTurn = new Button("NEXT TURN");
         nextTurn.setDefaultButton(true);
 
         nextTurn.setPrefSize(100, 25);
@@ -205,30 +164,14 @@ public class App extends Application {
         nextTurn.setLayoutY(125);
 
         board.getChildren().add(nextTurn);
+        
         nextTurn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent e) {
-                if (!game.getGameBoard().isOver()) {   //aca dentro va lo del text de turno
-                    Player actualPlayer = game.getCurrentPlayer();
-                    if (actualPlayer.isAI()) {
-                        try {
-                            ((AIPlayer) actualPlayer).calculateAndMakeMove();
-                        } catch (MinimaxException ex) {
-                            System.out.println(ex);
-                        }
-                    } else {
-                        try {
-                            actualPlayer.makeMovePlayer(lastMoveClicked);
-                        } catch (InvalidMoveException ex) {
-                            System.out.println(ex);
-                        }
-                        lastMoveClicked = null;
-                    }
-
-                    board.isCache();
-                    board.refreshBoard();
-                }
+            @Override
+            public void handle(ActionEvent e) {
+                playNextTurn();
             }
         });
+
 
         scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -237,6 +180,29 @@ public class App extends Application {
             }
         });
 
+    }
+
+    private void playNextTurn() {
+        if (!game.getGameBoard().isOver()) {   //aca dentro va lo del text de turno
+            Player actualPlayer = game.getCurrentPlayer();
+            if (actualPlayer.isAI()) {
+                try {
+                    ((AIPlayer) actualPlayer).calculateAndMakeMove();
+
+                } catch (MinimaxException ex) {
+                    System.out.println(ex);
+                }
+            } else {
+                try {
+                    actualPlayer.makeMovePlayer(lastMoveClicked);
+                } catch (InvalidMoveException ex) {
+                    System.out.println(ex);
+                }
+                lastMoveClicked = null;
+            }
+
+            board.refreshBoard();
+        }
     }
 
     private class Coordinates {
