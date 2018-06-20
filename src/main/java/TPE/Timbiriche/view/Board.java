@@ -27,6 +27,7 @@ public class Board extends Pane {
     private static Text points2 = new Text(600, 250, "0");
     private static Text firstClick = new Text(600, 300, "First click detected.");
     private static Text secondClick = new Text(600, 350, "Second click detected");
+    private static Text invalidMove = new Text(600, 400, "Invalid Move");
 
     public Board(Game g) {
         this.g = g;
@@ -52,8 +53,10 @@ public class Board extends Pane {
         getChildren().add(points2);
         firstClick.setVisible(false);
         secondClick.setVisible(false);
+        invalidMove.setVisible(false);
         getChildren().add(firstClick);
         getChildren().add(secondClick);
+        getChildren().add(invalidMove);
     }
 
     public Text getFirstClick(){
@@ -62,6 +65,10 @@ public class Board extends Pane {
 
     public Text getSecondClick(){
         return secondClick;
+    }
+
+    public Text getInvalidMoveText(){
+        return invalidMove;
     }
 
     public void refreshBoard() {

@@ -27,6 +27,9 @@ import java.io.IOException;
 
 import static javafx.scene.paint.Color.BLUE;
 
+/**
+ * Clase principal que parsea la entrada de argumentos y genera la partida
+ */
 public class App extends Application {
     private static Game game;
     private Scene scene;
@@ -215,6 +218,7 @@ public class App extends Application {
                         cord1.y = x / 30;
                         cont = 1;
                         board.getFirstClick().setVisible(true);
+                        board.getInvalidMoveText().setVisible(false);
                     }
                     else if(cont == 1){
                         cord2.x = y / 30;
@@ -244,6 +248,7 @@ public class App extends Application {
                 try {
                     actualPlayer.makeMovePlayer(lastMoveClicked);
                 } catch (InvalidMoveException ex) {
+                    board.getInvalidMoveText().setVisible(true);
                     System.out.println(ex);
                 }
                 board.getFirstClick().setVisible(false);
