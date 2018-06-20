@@ -209,7 +209,6 @@ public class App extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-
         while (!game.getGameBoard().isOver()) {   //aca dentro va lo del text de turno
             Player actualPlayer = game.getCurrentPlayer();
             if (actualPlayer.isAI()) {
@@ -219,6 +218,7 @@ public class App extends Application {
                 actualPlayer.makeMovePlayer(moveToMake);
             }
 
+            board.isCache();
             board.refreshBoard();
         }
     }

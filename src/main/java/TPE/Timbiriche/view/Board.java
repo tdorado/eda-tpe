@@ -3,11 +3,15 @@ package TPE.Timbiriche.view;
 import TPE.Timbiriche.App;
 import TPE.Timbiriche.model.*;
 import TPE.Timbiriche.model.exceptions.InvalidMoveException;
+import com.sun.org.apache.xpath.internal.SourceTree;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+
+import java.util.LinkedList;
+import java.util.List;
 
 
 public class Board extends Pane {
@@ -19,47 +23,50 @@ public class Board extends Pane {
     private static Game g;
 
     public Board(Game g) {
-
         this.g = g;
-        refreshBoard();
+        initializeBoard();
     }
 
-
-    public void refreshBoard() {
-        int i;
-        int j;
-
+    public void setTexts() {
         App.getPoints1().setText("Player 1 point: " + g.getPlayer1().getPoints());
         App.getPoints2().setText("Player 2 point: " + g.getPlayer2().getPoints());
+    }
 
-        for (i = 0; i < g.getGameBoard().getSize(); i++) {
-            for (j = 0; j < g.getGameBoard().getSize(); j++) {
+    private void initializeBoard() {
+        setTexts();
+
+        for (int i = 0; i < g.getGameBoard().getSize(); i++) {
+            for (int j = 0; j < g.getGameBoard().getSize(); j++) {
                 Circle c = new Circle(RADIUS, Color.BLACK);
                 c.relocate(i * DISTANCE, j * DISTANCE);
                 getChildren().add(c);
             }
         }
+    }
 
-        for (MoveDone d : g.getGameBoard().getMovesDone()) {
+    public void refreshBoard() {
+        setTexts();
+
+        for (MoveDone eachMoveDone : g.getLastMovesDone()) {
             Rectangle arc = new Rectangle();
             arc.setArcWidth(1);
             arc.setArcHeight(1);
 
-            if (d.getMove().isHorizontal()) {
+            if (eachMoveDone.getMove().isHorizontal()) {
                 arc.setWidth(LINE_DISTANCE);
                 arc.setHeight(LINE_EXTEND);
-                arc.setX((d.getMove().getColFrom() * DISTANCE) + RADIUS * 2);
-                arc.setY((d.getMove().getRowFrom() * DISTANCE) + (RADIUS * 2 - LINE_EXTEND) / 2);
+                arc.setX((eachMoveDone.getMove().getColFrom() * DISTANCE) + RADIUS * 2);
+                arc.setY((eachMoveDone.getMove().getRowFrom() * DISTANCE) + (RADIUS * 2 - LINE_EXTEND) / 2);
 
             } else {
                 arc.setWidth(LINE_EXTEND);
                 arc.setHeight(LINE_DISTANCE);
-                arc.setX((d.getMove().getColFrom() * DISTANCE) + (RADIUS * 2 - LINE_EXTEND) / 2);
-                arc.setY((d.getMove().getRowFrom() * DISTANCE) + RADIUS * 2);
+                arc.setX((eachMoveDone.getMove().getColFrom() * DISTANCE) + (RADIUS * 2 - LINE_EXTEND) / 2);
+                arc.setY((eachMoveDone.getMove().getRowFrom() * DISTANCE) + RADIUS * 2);
 
             }
 
-            if (d.getPlayer() == g.getPlayer1()) {
+            if (eachMoveDone.getPlayer() == g.getPlayer1()) {
                 arc.setFill(Color.RED);
             } else {
                 arc.setFill(Color.BLUE);
@@ -70,8 +77,8 @@ public class Board extends Pane {
     }
 
     public boolean existMove(int x, int y) {
-        if (x >= 0 && x <= DISTANCE * g.getGameBoard().getSize() && y >= 0 && y <= DISTANCE * g.getGameBoard().getSize()) { //esta dentro del tablero
-            if (x % DISTANCE <= 5 && y % DISTANCE <= 5) { //esta dentro del radio de un punto
+        if (x >= 0 && x <= DISTANCE * g.getGameBoard().getSize() && y >= 0 && y <= DISTANCE * g.getGameBoard().getSize()) {
+            if (x % DISTANCE <= RADIUS && y % DISTANCE <= RADIUS) {
                 return true;
             }
         }
