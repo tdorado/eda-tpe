@@ -85,11 +85,4 @@ public class Board extends Pane {
         return false;
     }
 
-    public boolean validMove(int x1, int y1, int x2, int y2) {
-        if (Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2)) <= DISTANCE + 2 * RADIUS) {
-            return true;
-        }
-        return false;
-    }
-
 }

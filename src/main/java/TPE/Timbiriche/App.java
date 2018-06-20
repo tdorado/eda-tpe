@@ -176,7 +176,11 @@ public class App extends Application {
         scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                //ACA VOY A MODIFICAR lastMoveClicked cada vez que hace un clic en un arista
+                int x = (int)event.getX();
+                int y = (int)event.getY();
+                if(board.isCircle(x, y)){
+                    System.out.println(x + " " + y);
+                }
             }
         });
 
