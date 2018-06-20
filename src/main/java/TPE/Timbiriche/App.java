@@ -15,6 +15,8 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.*;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.scene.text.Text;
@@ -155,6 +157,45 @@ public class App extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
+        Button undo = new Button("UNDO");
+        undo.setDefaultButton(true);
+
+        undo.setPrefSize(100, 25);
+
+        undo.setLayoutX(600);
+        undo.setLayoutY(25);
+
+        board.getChildren().add(undo);
+
+        Button save = new Button("SAVE");
+        save.setDefaultButton(true);
+
+        save.setPrefSize(100, 25);
+
+        save.setLayoutX(600);
+        save.setLayoutY(75);
+
+        board.getChildren().add(save);
+
+        undo.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                MoveDone lastMoveDone = game.undoLastMove();
+                if (lastMoveDone != null) {
+                    board.undoLastMove(lastMoveDone);
+                }
+            }
+        });
+
+        save.setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent e) {
+                try {
+                    game.saveGame("Partida");
+                } catch (IOException | ClassNotFoundException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+
         nextTurn = new Button("NEXT TURN");
         nextTurn.setDefaultButton(true);
 
@@ -164,14 +205,13 @@ public class App extends Application {
         nextTurn.setLayoutY(125);
 
         board.getChildren().add(nextTurn);
-        
+
         nextTurn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
                 playNextTurn();
             }
         });
-
 
         scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override

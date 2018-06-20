@@ -48,23 +48,7 @@ public class Board extends Pane {
         setTexts();
 
         for (MoveDone eachMoveDone : g.getLastMovesDone()) {
-            Rectangle arc = new Rectangle();
-            arc.setArcWidth(1);
-            arc.setArcHeight(1);
-
-            if (eachMoveDone.getMove().isHorizontal()) {
-                arc.setWidth(LINE_DISTANCE);
-                arc.setHeight(LINE_EXTEND);
-                arc.setX((eachMoveDone.getMove().getColFrom() * DISTANCE) + RADIUS * 2);
-                arc.setY((eachMoveDone.getMove().getRowFrom() * DISTANCE) + (RADIUS * 2 - LINE_EXTEND) / 2);
-
-            } else {
-                arc.setWidth(LINE_EXTEND);
-                arc.setHeight(LINE_DISTANCE);
-                arc.setX((eachMoveDone.getMove().getColFrom() * DISTANCE) + (RADIUS * 2 - LINE_EXTEND) / 2);
-                arc.setY((eachMoveDone.getMove().getRowFrom() * DISTANCE) + RADIUS * 2);
-
-            }
+            Rectangle arc = createLine(eachMoveDone);
 
             if (eachMoveDone.getPlayer() == g.getPlayer1()) {
                 arc.setFill(Color.RED);
@@ -74,6 +58,36 @@ public class Board extends Pane {
 
             getChildren().add(arc);
         }
+    }
+
+    public void undoLastMove(MoveDone lastMoveDone) {
+        Rectangle arc = createLine(lastMoveDone);
+
+        arc.setFill(Color.WHITE);
+        getChildren().add(arc);
+
+    }
+
+    private Rectangle createLine(MoveDone moveDone) {
+        Rectangle arc = new Rectangle();
+        arc.setArcWidth(1);
+        arc.setArcHeight(1);
+
+        if (moveDone.getMove().isHorizontal()) {
+            arc.setWidth(LINE_DISTANCE);
+            arc.setHeight(LINE_EXTEND);
+            arc.setX((moveDone.getMove().getColFrom() * DISTANCE) + RADIUS * 2);
+            arc.setY((moveDone.getMove().getRowFrom() * DISTANCE) + (RADIUS * 2 - LINE_EXTEND) / 2);
+
+        } else {
+            arc.setWidth(LINE_EXTEND);
+            arc.setHeight(LINE_DISTANCE);
+            arc.setX((moveDone.getMove().getColFrom() * DISTANCE) + (RADIUS * 2 - LINE_EXTEND) / 2);
+            arc.setY((moveDone.getMove().getRowFrom() * DISTANCE) + RADIUS * 2);
+
+        }
+
+        return arc;
     }
 
     public boolean isCircle(int x, int y) {
