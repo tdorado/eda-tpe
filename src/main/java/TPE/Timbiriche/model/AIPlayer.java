@@ -551,36 +551,36 @@ public class AIPlayer extends Player implements Serializable {
     }
 
     private int makeDotFileRec(PrintWriter writer, MoveState moveState, int nodeNumber){
-        String moveStringFrom = moveState.toString();
         int nodeNumberFrom = nodeNumber++;
         for(MoveState moveStateChild : moveState.children){
             String moveStringTo = moveStateChild.toString();
             if(moveStateChild == moveState.chosen){
                 if(moveStateChild.isMax) {
                     writer.println( nodeNumber + "[label=\"" + moveStringTo + "\" ,shape=oval, style=filled, fillcolor=coral1]");
-                    writer.println(nodeNumberFrom + " -> " + nodeNumber++);
+                    writer.println(nodeNumberFrom + " -> " + nodeNumber);
                 }
                 else{
                     writer.println( nodeNumber + "[label=\"" + moveStringTo + "\" ,shape=box, style=filled, fillcolor=coral1]");
-                    writer.println(nodeNumberFrom + " -> " + nodeNumber++);
+                    writer.println(nodeNumberFrom + " -> " + nodeNumber);
                 }
             }
             else{
                 if(moveStateChild.isMax) {
                     writer.println( nodeNumber + "[label=\"" + moveStringTo + "\" , shape=oval, style=filled, fillcolor=white]");
-                    writer.println(nodeNumberFrom + " -> " + nodeNumber++);
+                    writer.println(nodeNumberFrom + " -> " + nodeNumber);
                 }
                 else{
                     if(moveStateChild.pruned){
                         writer.println( nodeNumber + "[label=\"" + moveStringTo + "\" , shape=box, style=filled, fillcolor=gray76]");
-                        writer.println(nodeNumberFrom + " -> " + nodeNumber++);
+                        writer.println(nodeNumberFrom + " -> " + nodeNumber);
                     }
                     else{
                         writer.println( nodeNumber + "[label=\"" + moveStringTo + "\" , shape=box, style=filled, fillcolor=white]");
-                        writer.println(nodeNumberFrom + " -> " + nodeNumber++);
+                        writer.println(nodeNumberFrom + " -> " + nodeNumber);
                     }
                 }
             }
+            nodeNumber = makeDotFileRec(writer, moveStateChild, nodeNumber);
         }
         return nodeNumber;
     }
