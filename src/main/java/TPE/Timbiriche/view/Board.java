@@ -2,6 +2,7 @@ package TPE.Timbiriche.view;
 
 import TPE.Timbiriche.App;
 import TPE.Timbiriche.model.*;
+import TPE.Timbiriche.model.exceptions.InvalidMoveException;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -15,13 +16,15 @@ public class Board extends Pane {
     private static final int RADIUS = 5;
     private static Game g;
 
-    public Board(Game g){
+    public Board(Game g) throws InvalidMoveException {
 
         this.g = g;
         refreshBoard();
     }
 
-    public void refreshBoard(){
+
+
+    public void refreshBoard() throws InvalidMoveException {
         int i;
         int j;
 
@@ -36,6 +39,11 @@ public class Board extends Pane {
             }
         }
 
+        try {
+            g.getCurrentPlayer().makeMovePlayer(new Move(30,0,60,0));
+        } catch (InvalidMoveException e) {
+            e.printStackTrace();
+        }
 
         for(MoveDone d : g.getGameBoard().getMovesDone()){
             Rectangle arc = new Rectangle();

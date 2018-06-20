@@ -198,8 +198,6 @@ public class App extends Application {
         board.getChildren().add(save);
 
 
-        Text turn = new Text(600,126,"");
-
 
         undo.setOnAction(new EventHandler<ActionEvent>() {
             @Override public void handle(ActionEvent e) {
