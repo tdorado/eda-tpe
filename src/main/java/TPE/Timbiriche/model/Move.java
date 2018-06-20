@@ -21,19 +21,17 @@ public class Move implements Serializable, Cloneable {
     public Move(int rowFrom, int colFrom, int rowTo, int colTo) {
         /*The HashCode and equals implementation assumes that the From position is lower than the To position,
         so we have to check this here just in case. */
-        if(rowFrom > rowTo){
+        if (rowFrom > rowTo) {
             this.rowFrom = rowTo;
             this.colFrom = colFrom;
             this.rowTo = rowFrom;
             this.colTo = colTo;
-        }
-        else if(colFrom > colTo){
+        } else if (colFrom > colTo) {
             this.rowFrom = rowFrom;
             this.colFrom = colTo;
             this.rowTo = rowTo;
             this.colTo = colFrom;
-        }
-        else{
+        } else {
             this.rowFrom = rowFrom;
             this.colFrom = colFrom;
             this.rowTo = rowTo;
@@ -57,7 +55,7 @@ public class Move implements Serializable, Cloneable {
         return colTo;
     }
 
-    public boolean isHorizontal(){
+    public boolean isHorizontal() {
         return rowFrom == rowTo;
     }
 
@@ -80,11 +78,12 @@ public class Move implements Serializable, Cloneable {
 
     @Override
     public String toString() {
-        return "(" + rowFrom + ", "  + colFrom + ")( " + rowTo + ", " + colTo + ')';
+        return "(" + rowFrom + ", " + colFrom + ")( " + rowTo + ", " + colTo + ')';
     }
 
     /**
      * Serialization method for saveGame and loadGame
+     *
      * @param out
      * @throws IOException
      */
@@ -98,6 +97,7 @@ public class Move implements Serializable, Cloneable {
 
     /**
      * Serialization method for saveGame and loadGame
+     *
      * @param ois
      * @throws IOException
      * @throws ClassNotFoundException

@@ -4,7 +4,6 @@ import TPE.Timbiriche.model.exceptions.MinimaxException;
 
 import java.io.*;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
@@ -36,15 +35,17 @@ public class AIPlayer extends Player implements Serializable {
 
     /**
      * Method that returns true because this Player is AI
+     *
      * @return boolean
      */
     @Override
-    public boolean isAI(){
+    public boolean isAI() {
         return true;
     }
 
     /**
      * Method that changes the mode for the minimax, only used in loadGame
+     *
      * @param aiMode int
      */
     void setAiMode(int aiMode) {
@@ -53,6 +54,7 @@ public class AIPlayer extends Player implements Serializable {
 
     /**
      * Method that sets the parameter for the mode of the minimax, only used in loadGame
+     *
      * @param aiModeParam int
      */
     void setAiModeParam(int aiModeParam) {
@@ -61,6 +63,7 @@ public class AIPlayer extends Player implements Serializable {
 
     /**
      * Method that sets the prune on or off for the minimax, only used in loadGame
+     *
      * @param prune boolean
      */
     void setPrune(boolean prune) {
@@ -69,31 +72,32 @@ public class AIPlayer extends Player implements Serializable {
 
     /**
      * Method that calculates the move using minimax algorithm with the parameters already saved
+     *
      * @throws MinimaxException
      */
     public void calculateAndMakeMove() throws MinimaxException {
         LinkedList<Move> moves = minimax();
-        for(Move move : moves) {
+        for (Move move : moves) {
             this.makeMove(move);
         }
     }
 
     /**
      * Method that gets the moves that the AI has to make
+     *
      * @return List of moves to be made by de AIPlayer
      * @throws MinimaxException
      */
     private LinkedList<Move> minimax() throws MinimaxException {
         lastMoveState = new MoveState(false);
-        if(aiMode == 0){
+        if (aiMode == 0) {
             long timeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
-            minimaxTimeRec(0, lastMoveState, false, true, timeSeconds + (long)aiModeParam + 1);
-        }
-        else {
+            minimaxTimeRec(0, lastMoveState, false, true, timeSeconds + (long) aiModeParam + 1);
+        } else {
             minimaxDepthRec(0, lastMoveState, 0, false, true);
         }
         System.out.println(lastMoveState.chosen);
-        if(lastMoveState.chosen != null) {
+        if (lastMoveState.chosen != null) {
             return lastMoveState.chosen.moves;
         }
         return null;
@@ -101,16 +105,17 @@ public class AIPlayer extends Player implements Serializable {
 
     /**
      * Method for the minimax recurrence in depth
-     * @param movesCount int of how many moves were done in this recurrence
+     *
+     * @param movesCount        int of how many moves were done in this recurrence
      * @param previousMoveState the MoveState that needs this recurrence
-     * @param depth int of the current depth
-     * @param sameLevel boolean if the play has more than one move
-     * @param maxOrMin boolean if max or min of the minimax
+     * @param depth             int of the current depth
+     * @param sameLevel         boolean if the play has more than one move
+     * @param maxOrMin          boolean if max or min of the minimax
      * @return int minimax value
      */
-    private int minimaxDepthRec(int movesCount, MoveState previousMoveState, int depth, boolean sameLevel, boolean maxOrMin){
-        if(maxOrMin) {  // MAX
-            if(!game.getGameBoard().getPossibleMoves().isEmpty()) {
+    private int minimaxDepthRec(int movesCount, MoveState previousMoveState, int depth, boolean sameLevel, boolean maxOrMin) {
+        if (maxOrMin) {  // MAX
+            if (!game.getGameBoard().getPossibleMoves().isEmpty()) {
                 if (sameLevel) { // MAX CON VARIOS MOVS
                     boolean firstEntry = true;
                     HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
@@ -146,7 +151,7 @@ public class AIPlayer extends Player implements Serializable {
                                 previousMoveState.chosen = currentMoveState;
                             }
                         }
-                        while(movesCount > auxMovesCount){
+                        while (movesCount > auxMovesCount) {
                             game.undoLastMove();
                             movesCount--;
                         }
@@ -173,14 +178,13 @@ public class AIPlayer extends Player implements Serializable {
                                 previousMoveState.chosen = currentMoveState;
                             }
                         }
-                        while(movesCount > 0){
+                        while (movesCount > 0) {
                             game.undoLastMove();
                             movesCount--;
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 MoveState currentMoveState = previousMoveState.children.getLast();
                 if (previousMoveState.chosen == null)
                     previousMoveState.chosen = currentMoveState;
@@ -188,9 +192,8 @@ public class AIPlayer extends Player implements Serializable {
                 if (previousMoveState.chosen.value < currentMoveState.value)
                     previousMoveState.chosen = currentMoveState;
             }
-        }
-        else{ // MIN
-            if(!game.getGameBoard().getPossibleMoves().isEmpty()) {
+        } else { // MIN
+            if (!game.getGameBoard().getPossibleMoves().isEmpty()) {
                 if (sameLevel) { //MIN CON VARIOS MOVS
                     boolean firstEntry = true;
                     HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
@@ -240,7 +243,7 @@ public class AIPlayer extends Player implements Serializable {
                                 }
                             }
                         }
-                        while(movesCount > auxMovesCount){
+                        while (movesCount > auxMovesCount) {
                             game.undoLastMove();
                             movesCount--;
                         }
@@ -282,14 +285,13 @@ public class AIPlayer extends Player implements Serializable {
                                 }
                             }
                         }
-                        while(movesCount > 0){
+                        while (movesCount > 0) {
                             game.undoLastMove();
                             movesCount--;
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 MoveState currentMoveState = previousMoveState.children.getLast();
                 if (previousMoveState.chosen == null)
                     previousMoveState.chosen = currentMoveState;
@@ -303,16 +305,17 @@ public class AIPlayer extends Player implements Serializable {
 
     /**
      * Method for the minimax recurrence in time
-     * @param movesCount int of how many moves were done in this recurrence
+     *
+     * @param movesCount        int of how many moves were done in this recurrence
      * @param previousMoveState the MoveState that needs this recurrence
-     * @param sameLevel boolean if the play has more than one move
-     * @param maxOrMin boolean if max or min of the minimax
-     * @param secondsMax long for the maximum of seconds the method has to be done for
+     * @param sameLevel         boolean if the play has more than one move
+     * @param maxOrMin          boolean if max or min of the minimax
+     * @param secondsMax        long for the maximum of seconds the method has to be done for
      * @return int minimax value
      */
-    private int minimaxTimeRec(int movesCount, MoveState previousMoveState, boolean sameLevel, boolean maxOrMin, long secondsMax){
-        if(maxOrMin) {  // MAX
-            if(!game.getGameBoard().getPossibleMoves().isEmpty()) {
+    private int minimaxTimeRec(int movesCount, MoveState previousMoveState, boolean sameLevel, boolean maxOrMin, long secondsMax) {
+        if (maxOrMin) {  // MAX
+            if (!game.getGameBoard().getPossibleMoves().isEmpty()) {
                 if (sameLevel) { // MAX CON VARIOS MOVS
                     boolean firstEntry = true;
                     HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
@@ -352,11 +355,11 @@ public class AIPlayer extends Player implements Serializable {
                                 previousMoveState.chosen = currentMoveState;
                             }
                         }
-                        while(movesCount > auxMovesCount){
+                        while (movesCount > auxMovesCount) {
                             game.undoLastMove();
                             movesCount--;
                         }
-                        if(timeFlag){
+                        if (timeFlag) {
                             return previousMoveState.chosen.value;
                         }
                     }
@@ -386,17 +389,16 @@ public class AIPlayer extends Player implements Serializable {
                                 previousMoveState.chosen = currentMoveState;
                             }
                         }
-                        while(movesCount > 0){
+                        while (movesCount > 0) {
                             game.undoLastMove();
                             movesCount--;
                         }
-                        if(timeFlag){
+                        if (timeFlag) {
                             return previousMoveState.chosen.value;
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 MoveState currentMoveState = previousMoveState.children.getLast();
                 if (previousMoveState.chosen == null)
                     previousMoveState.chosen = currentMoveState;
@@ -404,9 +406,8 @@ public class AIPlayer extends Player implements Serializable {
                 if (previousMoveState.chosen.value < currentMoveState.value)
                     previousMoveState.chosen = currentMoveState;
             }
-        }
-        else{ // MIN
-            if(!game.getGameBoard().getPossibleMoves().isEmpty()) {
+        } else { // MIN
+            if (!game.getGameBoard().getPossibleMoves().isEmpty()) {
                 if (sameLevel) { //MIN CON VARIOS MOVS
                     boolean firstEntry = true;
                     HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
@@ -442,7 +443,7 @@ public class AIPlayer extends Player implements Serializable {
                                     long timeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
                                     if (timeSeconds < secondsMax) {
                                         currentMoveState.value = minimaxTimeRec(0, currentMoveState, false, true, secondsMax);
-                                    }else{
+                                    } else {
                                         timeFlag = true;
                                     }
                                     if (previousMoveState.chosen.value > currentMoveState.value) {
@@ -462,11 +463,11 @@ public class AIPlayer extends Player implements Serializable {
                                 }
                             }
                         }
-                        while(movesCount > auxMovesCount){
+                        while (movesCount > auxMovesCount) {
                             game.undoLastMove();
                             movesCount--;
                         }
-                        if(timeFlag){
+                        if (timeFlag) {
                             return previousMoveState.chosen.value;
                         }
                     }
@@ -511,17 +512,16 @@ public class AIPlayer extends Player implements Serializable {
                                 }
                             }
                         }
-                        while(movesCount > 0){
+                        while (movesCount > 0) {
                             game.undoLastMove();
                             movesCount--;
                         }
-                        if(timeFlag){
+                        if (timeFlag) {
                             return previousMoveState.chosen.value;
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 MoveState currentMoveState = previousMoveState.children.getLast();
                 if (previousMoveState.chosen == null)
                     previousMoveState.chosen = currentMoveState;
@@ -535,17 +535,16 @@ public class AIPlayer extends Player implements Serializable {
 
     /**
      * Heuristic for the minimax
+     *
      * @return int heuristic value
      */
-    private int heuristicValue(){
-        if(game.getGameBoard().isOver()){
-            if(getOtherPlayer().getPoints() > points){
+    private int heuristicValue() {
+        if (game.getGameBoard().isOver()) {
+            if (getOtherPlayer().getPoints() > points) {
                 return beta;
-            }
-            else if(getOtherPlayer().getPoints() < points){
+            } else if (getOtherPlayer().getPoints() < points) {
                 return alpha;
-            }
-            else{
+            } else {
                 return 0;
             }
         }
@@ -554,10 +553,11 @@ public class AIPlayer extends Player implements Serializable {
 
     /**
      * Method used for the heuristic value that returns the player that currently does not have to play
+     *
      * @return Player
      */
     private Player getOtherPlayer() {
-        if(game.getCurrentPlayer() == this){
+        if (game.getCurrentPlayer() == this) {
             return game.getNotCurrentPlayer();
         }
         return game.getCurrentPlayer();
@@ -565,11 +565,12 @@ public class AIPlayer extends Player implements Serializable {
 
     /**
      * Method to create the last minimax in .dot format
+     *
      * @param fileName name of the file
      * @return true if create, false if not
      */
-    public boolean makeDotFile(String fileName){
-        if(lastMoveState == null){
+    public boolean makeDotFile(String fileName) {
+        if (lastMoveState == null) {
             return false;
         }
         PrintWriter writer;
@@ -579,7 +580,7 @@ public class AIPlayer extends Player implements Serializable {
         } catch (FileNotFoundException e) {
             return false;
         }
-        if(writer == null){
+        if (writer == null) {
             return false;
         }
 
@@ -589,15 +590,14 @@ public class AIPlayer extends Player implements Serializable {
         writer.println();
 
         writer.println("START [shape=box, style=filled, fillcolor=coral1]");
-        for(MoveState moveState : lastMoveState.children){
+        for (MoveState moveState : lastMoveState.children) {
             String moveString = moveState.toString();
-            if(moveState == lastMoveState.chosen){
-                writer.println( nodeNumber + "[label=\"" + moveString + "\" , shape=oval, style=filled, fillcolor=coral1]");
-                writer.println( "START -> " + nodeNumber);
-            }
-            else{
-                writer.println( nodeNumber + "[label=\"" + moveString + "\" , shape=oval, style=filled, fillcolor=white]");
-                writer.println( "START -> " + nodeNumber);
+            if (moveState == lastMoveState.chosen) {
+                writer.println(nodeNumber + "[label=\"" + moveString + "\" , shape=oval, style=filled, fillcolor=coral1]");
+                writer.println("START -> " + nodeNumber);
+            } else {
+                writer.println(nodeNumber + "[label=\"" + moveString + "\" , shape=oval, style=filled, fillcolor=white]");
+                writer.println("START -> " + nodeNumber);
             }
             nodeNumber = makeDotFileRec(writer, moveState, nodeNumber);
         }
@@ -610,37 +610,34 @@ public class AIPlayer extends Player implements Serializable {
 
     /**
      * Recurrence for the dot file
-     * @param writer writer
-     * @param moveState current MoveState
+     *
+     * @param writer     writer
+     * @param moveState  current MoveState
      * @param nodeNumber current node index
      * @return int of how many nodes were printed
      */
-    private int makeDotFileRec(PrintWriter writer, MoveState moveState, int nodeNumber){
+    private int makeDotFileRec(PrintWriter writer, MoveState moveState, int nodeNumber) {
         int nodeNumberFrom = nodeNumber++;
-        for(MoveState moveStateChild : moveState.children){
+        for (MoveState moveStateChild : moveState.children) {
             String moveStringTo = moveStateChild.toString();
-            if(moveStateChild == moveState.chosen){
-                if(moveStateChild.isMax) {
-                    writer.println( nodeNumber + "[label=\"" + moveStringTo + "\" ,shape=oval, style=filled, fillcolor=coral1]");
+            if (moveStateChild == moveState.chosen) {
+                if (moveStateChild.isMax) {
+                    writer.println(nodeNumber + "[label=\"" + moveStringTo + "\" ,shape=oval, style=filled, fillcolor=coral1]");
+                    writer.println(nodeNumberFrom + " -> " + nodeNumber);
+                } else {
+                    writer.println(nodeNumber + "[label=\"" + moveStringTo + "\" ,shape=box, style=filled, fillcolor=coral1]");
                     writer.println(nodeNumberFrom + " -> " + nodeNumber);
                 }
-                else{
-                    writer.println( nodeNumber + "[label=\"" + moveStringTo + "\" ,shape=box, style=filled, fillcolor=coral1]");
+            } else {
+                if (moveStateChild.isMax) {
+                    writer.println(nodeNumber + "[label=\"" + moveStringTo + "\" , shape=oval, style=filled, fillcolor=white]");
                     writer.println(nodeNumberFrom + " -> " + nodeNumber);
-                }
-            }
-            else{
-                if(moveStateChild.isMax) {
-                    writer.println( nodeNumber + "[label=\"" + moveStringTo + "\" , shape=oval, style=filled, fillcolor=white]");
-                    writer.println(nodeNumberFrom + " -> " + nodeNumber);
-                }
-                else{
-                    if(moveStateChild.pruned){
-                        writer.println( nodeNumber + "[label=\"" + moveStringTo + "\" , shape=box, style=filled, fillcolor=gray76]");
+                } else {
+                    if (moveStateChild.pruned) {
+                        writer.println(nodeNumber + "[label=\"" + moveStringTo + "\" , shape=box, style=filled, fillcolor=gray76]");
                         writer.println(nodeNumberFrom + " -> " + nodeNumber);
-                    }
-                    else{
-                        writer.println( nodeNumber + "[label=\"" + moveStringTo + "\" , shape=box, style=filled, fillcolor=white]");
+                    } else {
+                        writer.println(nodeNumber + "[label=\"" + moveStringTo + "\" , shape=box, style=filled, fillcolor=white]");
                         writer.println(nodeNumberFrom + " -> " + nodeNumber);
                     }
                 }
@@ -653,7 +650,7 @@ public class AIPlayer extends Player implements Serializable {
     /**
      * Class used to save all the recurrences of the minimax search
      */
-    private class MoveState{
+    private class MoveState {
         private LinkedList<Move> moves;
         private Integer value;
         private boolean pruned;
@@ -669,11 +666,12 @@ public class AIPlayer extends Player implements Serializable {
             this.isMax = isMax;
             this.children = new LinkedList<>();
         }
+
         @Override
         public String toString() {
             StringBuilder result = new StringBuilder();
             result.append("{");
-            for(Move move : moves){
+            for (Move move : moves) {
                 result.append("[" + move.toString() + "] ");
             }
             result.append(value + "}");
@@ -683,6 +681,7 @@ public class AIPlayer extends Player implements Serializable {
 
     /**
      * Serialization method for saveGame and loadGame
+     *
      * @param out
      * @throws IOException
      */
@@ -697,13 +696,14 @@ public class AIPlayer extends Player implements Serializable {
 
     /**
      * Serialization method for saveGame and loadGame
+     *
      * @param ois
      * @throws IOException
      */
-    private void readObject(ObjectInputStream ois) throws IOException,ClassNotFoundException{
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
         points = ois.readInt();
-        game = (Game)ois.readObject();
+        game = (Game) ois.readObject();
         aiMode = ois.readInt();
         aiModeParam = ois.readInt();
         prune = ois.readBoolean();

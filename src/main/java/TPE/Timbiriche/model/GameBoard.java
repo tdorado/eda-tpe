@@ -33,33 +33,37 @@ public class GameBoard implements Serializable {
 
     /**
      * Returns HashSet containing all moves done at the point of request.
+     *
      * @return HashSet of Move
      */
-    public HashSet<MoveDone> getMovesDone(){
+    public HashSet<MoveDone> getMovesDone() {
         return movesDone;
     }
 
     /**
      * Returns HashSet containing all possible moves at the point of request, not including the moves already done.
+     *
      * @return HashSet of Move
      */
-    public HashSet<Move> getPossibleMoves(){
+    public HashSet<Move> getPossibleMoves() {
         return possibleMoves;
     }
 
     /**
      * Returns true if the game is over, false if not.
+     *
      * @return boolean
      */
-    public boolean isOver(){
+    public boolean isOver() {
         return possibleMoves.isEmpty();
     }
 
     /**
      * Returns the size of the game board
+     *
      * @return int
      */
-    public int getSize(){
+    public int getSize() {
         return size;
     }
 
@@ -67,16 +71,16 @@ public class GameBoard implements Serializable {
      * Method that initializes the squares with int 4, and creates all possible moves and shuffles them
      */
     private void initializeGameBoard() {
-        for(int i = 0; i < (size - 1) * (size - 1); i++){
+        for (int i = 0; i < (size - 1) * (size - 1); i++) {
             squares[i] = 4;
         }
-        for(int row = 0; row < size; row++){
-            for(int col = 0; col < size; col++){
-                if (row == size - 1 && col != size -1) {
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                if (row == size - 1 && col != size - 1) {
                     possibleMoves.add(new Move(row, col, row, col + 1));
-                } else if (col == size - 1 && row != size -1) {
+                } else if (col == size - 1 && row != size - 1) {
                     possibleMoves.add(new Move(row, col, row + 1, col));
-                } else if(row != size -1 && col != size -1) {
+                } else if (row != size - 1 && col != size - 1) {
                     possibleMoves.add(new Move(row, col, row, col + 1));
                     possibleMoves.add(new Move(row, col, row + 1, col));
                 }
@@ -91,51 +95,52 @@ public class GameBoard implements Serializable {
 
     /**
      * Returns true it the move is valid, false if not
+     *
      * @param move Move
      * @return Boolean
      */
-    private boolean validMove(Move move){
-        if(!isOver())
+    private boolean validMove(Move move) {
+        if (!isOver())
             return possibleMoves.contains(move);
         return false;
     }
 
     /**
      * Method that undoes the moveDone, and returns the points that this move had won.
+     *
      * @param moveDone MoveDone
      * @return int
      */
-    int undoMove(MoveDone moveDone){
+    int undoMove(MoveDone moveDone) {
         Move move = moveDone.getMove();
-        if(movesDone.remove(moveDone)){
+        if (movesDone.remove(moveDone)) {
             possibleMoves.add(move);
 
             SquareIndex squareIndex = locateSquareIndex(moveDone.getMove());
             int result = 0;
 
-            if(moveDone.getMove().isHorizontal()){
-                if(squares[squareIndex.index] == 0){
+            if (moveDone.getMove().isHorizontal()) {
+                if (squares[squareIndex.index] == 0) {
                     result++;
                 }
                 squares[squareIndex.index]++;
 
-                if(!squareIndex.flagNotMid) {
+                if (!squareIndex.flagNotMid) {
                     squareIndex.index -= (size - 1);
-                    if(squares[squareIndex.index] == 0){
+                    if (squares[squareIndex.index] == 0) {
                         result++;
                     }
                     squares[squareIndex.index]++;
                 }
-            }
-            else{
-                if(squares[squareIndex.index] == 0){
+            } else {
+                if (squares[squareIndex.index] == 0) {
                     result++;
                 }
                 squares[squareIndex.index]++;
 
-                if(!squareIndex.flagNotMid) {
+                if (!squareIndex.flagNotMid) {
                     squareIndex.index--;
-                    if(squares[squareIndex.index] == 0){
+                    if (squares[squareIndex.index] == 0) {
                         result++;
                     }
                     squares[squareIndex.index]++;
@@ -148,24 +153,25 @@ public class GameBoard implements Serializable {
 
     /**
      * Method that makes a move and returns the points earned with that move or -1 if it is not a correct move
+     *
      * @param moveDone MoveDone
      * @return int
      */
-    int makeMove(MoveDone moveDone){
+    int makeMove(MoveDone moveDone) {
         Move move = moveDone.getMove();
-        if(validMove(move)){
+        if (validMove(move)) {
             movesDone.add(moveDone);
             possibleMoves.remove(move);
 
             SquareIndex squareIndex = locateSquareIndex(moveDone.getMove());
             int result = 0;
 
-            if(moveDone.getMove().isHorizontal()){  //Arista horizontal
+            if (moveDone.getMove().isHorizontal()) {  //Arista horizontal
                 squares[squareIndex.index]--;
-                if(squares[squareIndex.index] == 0){
+                if (squares[squareIndex.index] == 0) {
                     result++;
                 }
-                if(!squareIndex.flagNotMid) {
+                if (!squareIndex.flagNotMid) {
                     squareIndex.index -= (size - 1);
                     squares[squareIndex.index]--;
                     if (squares[squareIndex.index] == 0) {
@@ -173,13 +179,12 @@ public class GameBoard implements Serializable {
                     }
                 }
                 return result;
-            }
-            else{  //Arista vertical
+            } else {  //Arista vertical
                 squares[squareIndex.index]--;
-                if(squares[squareIndex.index] == 0){
+                if (squares[squareIndex.index] == 0) {
                     result++;
                 }
-                if(!squareIndex.flagNotMid) {
+                if (!squareIndex.flagNotMid) {
                     squareIndex.index--;
                     squares[squareIndex.index]--;
                     if (squares[squareIndex.index] == 0) {
@@ -194,27 +199,25 @@ public class GameBoard implements Serializable {
 
     /**
      * Method used to locate which index of the squares array the move has to use
+     *
      * @param move Move
      * @return SquareIndex
      */
-    private SquareIndex locateSquareIndex(Move move){
+    private SquareIndex locateSquareIndex(Move move) {
         SquareIndex squareIndex = new SquareIndex();
 
-        if(move.isHorizontal()){  //Arista horizontal
-            if(move.getRowFrom() == size -1) {
+        if (move.isHorizontal()) {  //Arista horizontal
+            if (move.getRowFrom() == size - 1) {
                 squareIndex.flagNotMid = true;
-                squareIndex.index = (move.getRowFrom() - 1)*(size - 1) + Math.min(move.getColFrom(), move.getColTo());
-            }
-            else if(move.getRowFrom() == 0){
+                squareIndex.index = (move.getRowFrom() - 1) * (size - 1) + Math.min(move.getColFrom(), move.getColTo());
+            } else if (move.getRowFrom() == 0) {
                 squareIndex.flagNotMid = true;
                 squareIndex.index = Math.min(move.getColFrom(), move.getColTo());
-            }
-            else{
+            } else {
                 squareIndex.flagNotMid = false;
-                squareIndex.index = move.getRowFrom()*(size - 1) + Math.min(move.getColFrom(), move.getColTo());
+                squareIndex.index = move.getRowFrom() * (size - 1) + Math.min(move.getColFrom(), move.getColTo());
             }
-        }
-        else {  //Arista vertical
+        } else {  //Arista vertical
             if (move.getColFrom() == size - 1) {
                 squareIndex.flagNotMid = true;
                 squareIndex.index = move.getColFrom() - 1 + Math.min(move.getRowFrom(), move.getRowTo()) * (size - 1);
@@ -232,13 +235,14 @@ public class GameBoard implements Serializable {
     /**
      * Class used to locate which index of the squares array a Move hast to use
      */
-    private class SquareIndex{
+    private class SquareIndex {
         private int index;
         private boolean flagNotMid;
     }
 
     /**
      * Serialization method for saveGame and loadGame
+     *
      * @param out
      * @throws IOException
      */
@@ -252,15 +256,16 @@ public class GameBoard implements Serializable {
 
     /**
      * Serialization method for saveGame and loadGame
+     *
      * @param ois
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    private void readObject(ObjectInputStream ois) throws IOException,ClassNotFoundException{
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
         size = ois.readInt();
-        squares = (int[])ois.readObject();
-        movesDone = (HashSet<MoveDone>)ois.readObject();
-        possibleMoves = (HashSet<Move>)ois.readObject();
+        squares = (int[]) ois.readObject();
+        movesDone = (HashSet<MoveDone>) ois.readObject();
+        possibleMoves = (HashSet<Move>) ois.readObject();
     }
 }

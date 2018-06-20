@@ -28,29 +28,31 @@ public class Player implements Serializable {
 
     /**
      * Method that makes a move of the player
+     *
      * @param move Move
      * @throws InvalidMoveException Invalid Move
      */
     public void makeMovePlayer(Move move) throws InvalidMoveException {
-        if(makeMove(move) == -1){
+        if (makeMove(move) == -1) {
             throw new InvalidMoveException();
         }
     }
 
     /**
      * Method that makes the move and saves it on the undoStack
+     *
      * @param move Move
      * @return -1 if invalid move or 0, 1 or 2 if the move made points
      */
-    int makeMove(Move move){
+    int makeMove(Move move) {
         int result;
         result = game.getGameBoard().makeMove(new MoveDone(move, this));
-        if(result == -1){
+        if (result == -1) {
             return result;
         }
         points += result;
         game.getUndoStack().push(new MoveDone(move, this));
-        if(result == 0) {
+        if (result == 0) {
             game.changeCurrentPlayerTurn();
         }
         return result;
@@ -58,14 +60,16 @@ public class Player implements Serializable {
 
     /**
      * Method that returns false in Player
+     *
      * @return boolean
      */
-    public boolean isAI(){
+    public boolean isAI() {
         return false;
     }
 
     /**
      * Returns int of the points of the player
+     *
      * @return int
      */
     public int getPoints() {
@@ -74,6 +78,7 @@ public class Player implements Serializable {
 
     /**
      * Method that sets the points of the player
+     *
      * @param points int
      */
     void setPoints(int points) {
@@ -82,6 +87,7 @@ public class Player implements Serializable {
 
     /**
      * Serialization method for saveGame and loadGame
+     *
      * @param out
      * @throws IOException
      */
@@ -93,13 +99,14 @@ public class Player implements Serializable {
 
     /**
      * Serialization method for saveGame and loadGame
+     *
      * @param ois
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException{
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
         points = ois.readInt();
-        game = (Game)ois.readObject();
+        game = (Game) ois.readObject();
     }
 }

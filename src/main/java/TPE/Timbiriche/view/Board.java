@@ -1,19 +1,11 @@
 package TPE.Timbiriche.view;
 
-import TPE.Timbiriche.App;
 import TPE.Timbiriche.model.*;
-import TPE.Timbiriche.model.exceptions.InvalidMoveException;
-import com.sun.org.apache.xpath.internal.SourceTree;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-
-import java.util.LinkedList;
-import java.util.List;
-
 
 public class Board extends Pane {
 
@@ -59,15 +51,15 @@ public class Board extends Pane {
         getChildren().add(invalidMove);
     }
 
-    public Text getFirstClick(){
+    public Text getFirstClick() {
         return firstClick;
     }
 
-    public Text getSecondClick(){
+    public Text getSecondClick() {
         return secondClick;
     }
 
-    public Text getInvalidMoveText(){
+    public Text getInvalidMoveText() {
         return invalidMove;
     }
 

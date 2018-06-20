@@ -5,27 +5,14 @@ import TPE.Timbiriche.model.exceptions.InvalidMoveException;
 import TPE.Timbiriche.model.exceptions.MinimaxException;
 import TPE.Timbiriche.view.Board;
 import javafx.application.Application;
-import javafx.beans.binding.BooleanBinding;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.*;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-import javafx.scene.text.Text;
 
-import javax.xml.soap.Node;
-import java.awt.*;
 import java.io.IOException;
-
-import static javafx.scene.paint.Color.BLUE;
 
 /**
  * Clase principal que parsea la entrada de argumentos y genera la partida
@@ -172,7 +159,8 @@ public class App extends Application {
         board.getChildren().add(save);
 
         undo.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent e) {
+            @Override
+            public void handle(ActionEvent e) {
                 MoveDone lastMoveDone = game.undoLastMove();
                 if (lastMoveDone != null) {
                     board.undoLastMove(lastMoveDone);
@@ -181,7 +169,8 @@ public class App extends Application {
         });
 
         save.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent e) {
+            @Override
+            public void handle(ActionEvent e) {
                 try {
                     game.saveGame("partida");
                 } catch (IOException | ClassNotFoundException e1) {
@@ -210,17 +199,16 @@ public class App extends Application {
         scene.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                int x = (int)event.getX();
-                int y = (int)event.getY();
-                if(board.isCircle(x, y)){
-                    if(cont == 0) {
+                int x = (int) event.getX();
+                int y = (int) event.getY();
+                if (board.isCircle(x, y)) {
+                    if (cont == 0) {
                         cord1.x = y / 30;
                         cord1.y = x / 30;
                         cont = 1;
                         board.getFirstClick().setVisible(true);
                         board.getInvalidMoveText().setVisible(false);
-                    }
-                    else if(cont == 1){
+                    } else if (cont == 1) {
                         cord2.x = y / 30;
                         cord2.y = x / 30;
                         cont = 2;
@@ -228,7 +216,7 @@ public class App extends Application {
                         lastMoveClicked = new Move(cord1.x, cord1.y, cord2.x, cord2.y);
                         playNextTurn();
                     }
-                 }
+                }
             }
         });
 

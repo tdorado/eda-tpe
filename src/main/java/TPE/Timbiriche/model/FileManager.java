@@ -9,6 +9,7 @@ public class FileManager {
 
     /**
      * Searchs the path for the resources directory
+     *
      * @return Directory path
      */
     private static String getResourcesDirectory() {
@@ -18,7 +19,8 @@ public class FileManager {
 
     /**
      * Saves an object on a file
-     * @param object Object to save
+     *
+     * @param object   Object to save
      * @param fileName File name
      * @throws IOException
      */
@@ -33,6 +35,7 @@ public class FileManager {
 
     /**
      * Searchs an object on a file
+     *
      * @param fileName File name
      * @return Object on the file
      * @throws IOException
@@ -42,7 +45,7 @@ public class FileManager {
         String resourceDirectory = getResourcesDirectory();
         String filePath = resourceDirectory + "/" + fileName + ".game";
         Object obj = null;
-        if (new File(filePath).length() != 0){
+        if (new File(filePath).length() != 0) {
             ObjectInputStream inputStream;
             inputStream = new ObjectInputStream(new FileInputStream(filePath));
             obj = inputStream.readObject();

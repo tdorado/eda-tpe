@@ -23,6 +23,7 @@ public class MoveDone implements Serializable {
 
     /**
      * Returns player that made this move
+     *
      * @return Player
      */
     public Player getPlayer() {
@@ -31,6 +32,7 @@ public class MoveDone implements Serializable {
 
     /**
      * Returns move of this done move
+     *
      * @return
      */
     public Move getMove() {
@@ -52,6 +54,7 @@ public class MoveDone implements Serializable {
 
     /**
      * Serialization method for saveGame and loadGame
+     *
      * @param out
      * @throws IOException
      */
@@ -63,13 +66,14 @@ public class MoveDone implements Serializable {
 
     /**
      * Serialization method for saveGame and loadGame
+     *
      * @param ois
      * @throws IOException
      * @throws ClassNotFoundException
      */
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
-        move = (Move)ois.readObject();
-        player = (Player)ois.readObject();
+        move = (Move) ois.readObject();
+        player = (Player) ois.readObject();
     }
 }

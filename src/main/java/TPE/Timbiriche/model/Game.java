@@ -55,6 +55,7 @@ public class Game implements Serializable {
 
     /**
      * Method that undoes the last move and returns the undone move
+     *
      * @return MoveDone undone
      */
     public MoveDone undoLastMove() {
@@ -133,17 +134,21 @@ public class Game implements Serializable {
 
     /**
      * Method that returns lasts move done by a player
+     *
      * @return List of MoveDone
      */
     public List<MoveDone> getLastMovesDone() {
         LinkedList<MoveDone> result = new LinkedList<>();
-        result.add(undoStack.peek());
-        boolean flag = false;
-        for (int i = undoStack.size() - 2; i >= 0 && !flag; i--) {
-            if (undoStack.get(i).getPlayer() == result.getFirst().getPlayer()) {
-                result.add(undoStack.get(i));
-            } else {
-                flag = true;
+
+        if (undoStack.size() != 0) {
+            result.add(undoStack.peek());
+            boolean flag = false;
+            for (int i = undoStack.size() - 2; i >= 0 && !flag; i--) {
+                if (undoStack.get(i).getPlayer() == result.getFirst().getPlayer()) {
+                    result.add(undoStack.get(i));
+                } else {
+                    flag = true;
+                }
             }
         }
         return result;
@@ -252,6 +257,7 @@ public class Game implements Serializable {
 
     /**
      * Serialization method for saveGame and loadGame
+     *
      * @param out
      * @throws IOException
      */
@@ -267,6 +273,7 @@ public class Game implements Serializable {
 
     /**
      * Serialization method for saveGame and loadGame
+     *
      * @param ois
      * @throws IOException
      * @throws ClassNotFoundException
