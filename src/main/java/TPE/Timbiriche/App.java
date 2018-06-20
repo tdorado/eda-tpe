@@ -15,9 +15,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-
+import javafx.scene.text.Text;
 import javax.xml.soap.Node;
-import javax.xml.soap.Text;
 import java.awt.*;
 import java.io.IOException;
 
@@ -29,8 +28,17 @@ public class App extends Application {
     private Board board;
     private Coordinates cords[] = new Coordinates[2];
     private int cont;
+    private static Text points1 = new Text(600,150,"0");
+    private static Text points2 = new Text(600,175,"0");
 
-    public static void main( String[] args )
+    public static Text getPoints1() {
+        return points1;
+    }
+    public static Text getPoints2(){
+        return points2;
+    }
+
+    public static void main(String[] args )
     {
         game = null;
 
@@ -204,7 +212,7 @@ public class App extends Application {
         board.getChildren().add(save);
 
 
-        Text turno = new Text(600,125,"");
+        Text turn = new Text(600,126,"");
 
 
         undo.setOnAction(new EventHandler<ActionEvent>() {
@@ -228,17 +236,23 @@ public class App extends Application {
 
 
 
-//        while(!game.getGameBoard().isOver()){
-//            Player actualPlayer = game.getCurrentPlayer();
-//            if(actualPlayer.isAI()){
-//                ((AIPlayer)actualPlayer).calculateAndMakeMove();
-//            }
-//            else{
-//                Move move = getMove();
-//                actualPlayer.makeMovePlayer(move);
-//            }
-//            board.refreshBoard();
-//        }
+        while(!game.getGameBoard().isOver()){   //aca dentro va lo del text de turno
+            Player actualPlayer = game.getCurrentPlayer();
+            if(actualPlayer == game.getPlayer1()){
+                turn.setText("Player 1 turn");
+            }
+            else{
+                turn.setText("Player 2 turn");
+            }
+            if(actualPlayer.isAI()){
+                ((AIPlayer)actualPlayer).calculateAndMakeMove();
+            }
+            else{
+                Move move = getMove();
+               actualPlayer.makeMovePlayer(move);
+            }
+            board.refreshBoard();
+      }
 
     }
 

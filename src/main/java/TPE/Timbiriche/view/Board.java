@@ -1,5 +1,6 @@
 package TPE.Timbiriche.view;
 
+import TPE.Timbiriche.App;
 import TPE.Timbiriche.model.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -23,6 +24,9 @@ public class Board extends Pane {
     public void refreshBoard(){
         int i;
         int j;
+
+        App.getPoints1().setText("Player 1 point: " + g.getPlayer1().getPoints());
+        App.getPoints2().setText("Player 2 point: " + g.getPlayer2().getPoints());
 
         for(i=0;i<g.getGameBoard().getSize();i++){
             for(j=0;j<g.getGameBoard().getSize();j++){
