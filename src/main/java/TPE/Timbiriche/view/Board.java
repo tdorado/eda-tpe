@@ -33,7 +33,7 @@ public class Board extends Pane {
 
         for(i=0;i<g.getGameBoard().getSize();i++){
             for(j=0;j<g.getGameBoard().getSize();j++){
-                Circle c = new Circle(5,Color.BLACK);
+                Circle c = new Circle(RADIUS,Color.BLACK);
                 c.relocate(i*DISTANCE,j*DISTANCE);
                 getChildren().add(c);
             }

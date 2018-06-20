@@ -140,7 +140,6 @@ public class App extends Application {
                 error = true;
             }
             if(!error) {
-                //testDeAIPlayer();
                 launch(args);
             }
             else{
@@ -213,7 +212,11 @@ public class App extends Application {
 //            }
 //        });
 
+        board = new Board(game);
 
+        scene = new Scene(board, 800, 600);
+        primaryStage.setScene(scene);
+        primaryStage.show();
 
 
         while(!game.getGameBoard().isOver()){   //aca dentro va lo del text de turno
@@ -221,13 +224,13 @@ public class App extends Application {
             if(actualPlayer.isAI()){
                 ((AIPlayer)actualPlayer).calculateAndMakeMove();
             }
+            else{
+                Move moveToMake = getMove();
+                actualPlayer.makeMovePlayer(moveToMake);
+            }
         }
 
-        board = new Board(game);
 
-        scene = new Scene(board, 800, 600);
-        primaryStage.setScene(scene);
-        primaryStage.show();
 
     }
 
