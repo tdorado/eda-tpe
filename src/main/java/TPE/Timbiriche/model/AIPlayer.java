@@ -271,6 +271,7 @@ public class AIPlayer extends Player implements Serializable {
                     boolean firstEntry = true;
                     HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
                     for (Move move : possibleMoves) {
+                        boolean timeFlag = false;
                         int auxMovesCount = movesCount;
                         movesCount++;
                         game.getCurrentPlayer().makeMove(move);
@@ -293,10 +294,12 @@ public class AIPlayer extends Player implements Serializable {
                             if (previousMoveState.chosen == null) {
                                 previousMoveState.chosen = currentMoveState;
                             }
+
                             long timeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
                             if (timeSeconds < secondsMax) {
                                 currentMoveState.value = minimaxTimeRec(0, currentMoveState, false, false, secondsMax);
                             } else {
+                                timeFlag = true;
                                 currentMoveState.value = ((AIPlayer) game.getNotCurrentPlayer()).heuristicValue();
                             }
                             if (previousMoveState.chosen.value < currentMoveState.value) {
@@ -307,10 +310,14 @@ public class AIPlayer extends Player implements Serializable {
                             game.undoLastMove();
                             movesCount--;
                         }
+                        if(timeFlag){
+                            return previousMoveState.chosen.value;
+                        }
                     }
                 } else { // MAX CON UN SOLO MOV
                     HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
                     for (Move move : possibleMoves) {
+                        boolean timeFlag = false;
                         movesCount++;
                         game.getCurrentPlayer().makeMove(move);
                         MoveState currentMoveState = new MoveState(true);
@@ -325,8 +332,10 @@ public class AIPlayer extends Player implements Serializable {
                             long timeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
                             if (timeSeconds < secondsMax) {
                                 currentMoveState.value = minimaxTimeRec(0, currentMoveState, false, false, secondsMax);
-                            } else
+                            } else {
+                                timeFlag = true;
                                 currentMoveState.value = ((AIPlayer) game.getNotCurrentPlayer()).heuristicValue();
+                            }
                             if (previousMoveState.chosen.value < currentMoveState.value) {
                                 previousMoveState.chosen = currentMoveState;
                             }
@@ -334,6 +343,9 @@ public class AIPlayer extends Player implements Serializable {
                         while(movesCount > 0){
                             game.undoLastMove();
                             movesCount--;
+                        }
+                        if(timeFlag){
+                            return previousMoveState.chosen.value;
                         }
                     }
                 }
@@ -353,6 +365,7 @@ public class AIPlayer extends Player implements Serializable {
                     boolean firstEntry = true;
                     HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
                     for (Move move : possibleMoves) {
+                        boolean timeFlag = false;
                         int auxMovesCount = movesCount;
                         movesCount++;
                         game.getCurrentPlayer().makeMove(move);
@@ -383,6 +396,8 @@ public class AIPlayer extends Player implements Serializable {
                                     long timeSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
                                     if (timeSeconds < secondsMax) {
                                         currentMoveState.value = minimaxTimeRec(0, currentMoveState, false, true, secondsMax);
+                                    }else{
+                                        timeFlag = true;
                                     }
                                     if (previousMoveState.chosen.value > currentMoveState.value) {
                                         previousMoveState.chosen = currentMoveState;
@@ -393,6 +408,7 @@ public class AIPlayer extends Player implements Serializable {
                                 if (timeSeconds < secondsMax) {
                                     currentMoveState.value = minimaxTimeRec(0, currentMoveState, false, true, secondsMax);
                                 } else {
+                                    timeFlag = true;
                                     currentMoveState.value = ((AIPlayer) game.getCurrentPlayer()).heuristicValue();
                                 }
                                 if (previousMoveState.chosen.value > currentMoveState.value) {
@@ -404,10 +420,14 @@ public class AIPlayer extends Player implements Serializable {
                             game.undoLastMove();
                             movesCount--;
                         }
+                        if(timeFlag){
+                            return previousMoveState.chosen.value;
+                        }
                     }
                 } else { //MIN CON UN SOLO MOV
                     HashSet<Move> possibleMoves = (HashSet<Move>) game.getGameBoard().getPossibleMoves().clone();
                     for (Move move : possibleMoves) {
+                        boolean timeFlag = false;
                         movesCount++;
                         game.getCurrentPlayer().makeMove(move);
                         MoveState currentMoveState = new MoveState(false);
@@ -437,6 +457,7 @@ public class AIPlayer extends Player implements Serializable {
                                 if (timeSeconds < secondsMax) {
                                     currentMoveState.value = minimaxTimeRec(0, currentMoveState, false, true, secondsMax);
                                 } else {
+                                    timeFlag = true;
                                     currentMoveState.value = ((AIPlayer) game.getCurrentPlayer()).heuristicValue();
                                 }
                                 if (previousMoveState.chosen.value > currentMoveState.value) {
@@ -447,6 +468,9 @@ public class AIPlayer extends Player implements Serializable {
                         while(movesCount > 0){
                             game.undoLastMove();
                             movesCount--;
+                        }
+                        if(timeFlag){
+                            return previousMoveState.chosen.value;
                         }
                     }
                 }

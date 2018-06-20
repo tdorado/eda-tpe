@@ -171,72 +171,63 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        board = new Board(game);
 
-        scene = new Scene(board, 800, 600);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
-        Button undo = new Button("UNDO");
-        undo.setDefaultButton(true);
-
-        undo.setPrefSize(100, 25);
-
-        undo.setLayoutX(600);
-        undo.setLayoutY(25);
-
-        board.getChildren().add(undo);
-
-        Button save = new Button("SAVE");
-        save.setDefaultButton(true);
-
-        save.setPrefSize(100, 25);
-
-        save.setLayoutX(600);
-        save.setLayoutY(75);
-
-        board.getChildren().add(save);
-
-
-
-        undo.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent e) {
-                game.undoLastMove();
-            }
-        });
-
-        save.setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent e) {
-                try {
-                    game.saveGame("Partida");
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                } catch (ClassNotFoundException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        });
+//
+//        Button undo = new Button("UNDO");
+//        undo.setDefaultButton(true);
+//
+//        undo.setPrefSize(100, 25);
+//
+//        undo.setLayoutX(600);
+//        undo.setLayoutY(25);
+//
+//        board.getChildren().add(undo);
+//
+//        Button save = new Button("SAVE");
+//        save.setDefaultButton(true);
+//
+//        save.setPrefSize(100, 25);
+//
+//        save.setLayoutX(600);
+//        save.setLayoutY(75);
+//
+//        board.getChildren().add(save);
+//
+//
+//
+//        undo.setOnAction(new EventHandler<ActionEvent>() {
+//            @Override public void handle(ActionEvent e) {
+//                game.undoLastMove();
+//            }
+//        });
+//
+//        save.setOnAction(new EventHandler<ActionEvent>() {
+//            @Override public void handle(ActionEvent e) {
+//                try {
+//                    game.saveGame("Partida");
+//                } catch (IOException e1) {
+//                    e1.printStackTrace();
+//                } catch (ClassNotFoundException e1) {
+//                    e1.printStackTrace();
+//                }
+//            }
+//        });
 
 
 
 
         while(!game.getGameBoard().isOver()){   //aca dentro va lo del text de turno
             Player actualPlayer = game.getCurrentPlayer();
-            if(actualPlayer == game.getPlayer1()){
-                turn.setText("Player 1 turn");
-            }
-            else{
-                turn.setText("Player 2 turn");
-            }
             if(actualPlayer.isAI()){
                 ((AIPlayer)actualPlayer).calculateAndMakeMove();
             }
-            else{
-                Move move = getMove();
-               actualPlayer.makeMovePlayer(move);
-            }
-            board.refreshBoard();
-      }
+        }
+
+        board = new Board(game);
+
+        scene = new Scene(board, 800, 600);
+        primaryStage.setScene(scene);
+        primaryStage.show();
 
     }
 

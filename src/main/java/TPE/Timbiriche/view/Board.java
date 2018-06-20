@@ -16,7 +16,7 @@ public class Board extends Pane {
     private static final int RADIUS = 5;
     private static Game g;
 
-    public Board(Game g) throws InvalidMoveException {
+    public Board(Game g){
 
         this.g = g;
         refreshBoard();
@@ -24,7 +24,7 @@ public class Board extends Pane {
 
 
 
-    public void refreshBoard() throws InvalidMoveException {
+    public void refreshBoard(){
         int i;
         int j;
 
@@ -37,12 +37,6 @@ public class Board extends Pane {
                 c.relocate(i*DISTANCE,j*DISTANCE);
                 getChildren().add(c);
             }
-        }
-
-        try {
-            g.getCurrentPlayer().makeMovePlayer(new Move(30,0,60,0));
-        } catch (InvalidMoveException e) {
-            e.printStackTrace();
         }
 
         for(MoveDone d : g.getGameBoard().getMovesDone()){
