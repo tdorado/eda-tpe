@@ -1,4 +1,4 @@
-package TPE.Timbiriche.model;
+package DAB.DotsAndBoxes.model;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -6,9 +6,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Objects;
 
-/**
- * Class for the moves of the game
- */
 public class Move implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 1L;
@@ -17,26 +14,21 @@ public class Move implements Serializable, Cloneable {
     private int colFrom;
     private int rowTo;
     private int colTo;
+    private int pointsDone;
+    private Player player;
+
+    Move(Move move, Player player){
+        this(move.rowFrom, move.colFrom, move.rowTo, move.colTo);
+        this.player = player;
+    }
 
     public Move(int rowFrom, int colFrom, int rowTo, int colTo) {
-        /*The HashCode and equals implementation assumes that the From position is lower than the To position,
-        so we have to check this here just in case. */
-        if (rowFrom > rowTo) {
-            this.rowFrom = rowTo;
-            this.colFrom = colFrom;
-            this.rowTo = rowFrom;
-            this.colTo = colTo;
-        } else if (colFrom > colTo) {
-            this.rowFrom = rowFrom;
-            this.colFrom = colTo;
-            this.rowTo = rowTo;
-            this.colTo = colFrom;
-        } else {
-            this.rowFrom = rowFrom;
-            this.colFrom = colFrom;
-            this.rowTo = rowTo;
-            this.colTo = colTo;
-        }
+        this.rowFrom = rowFrom;
+        this.colFrom = colFrom;
+        this.rowTo = rowTo;
+        this.colTo = colTo;
+        this.pointsDone = 0;
+        this.player = null;
     }
 
     public int getRowFrom() {
@@ -47,12 +39,16 @@ public class Move implements Serializable, Cloneable {
         return colFrom;
     }
 
-    public int getRowTo() {
-        return rowTo;
+    int getPointsDone() {
+        return pointsDone;
     }
 
-    public int getColTo() {
-        return colTo;
+    void setPointsDone(int pointsDone){
+        this.pointsDone = pointsDone;
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 
     public boolean isHorizontal() {
@@ -76,37 +72,32 @@ public class Move implements Serializable, Cloneable {
         return Objects.hash(rowFrom, colFrom, rowTo, colTo);
     }
 
+    public Move clone() throws CloneNotSupportedException {
+        return (Move) super.clone();
+    }
+
     @Override
     public String toString() {
         return "(" + rowFrom + ", " + colFrom + ")( " + rowTo + ", " + colTo + ')';
     }
 
-    /**
-     * Serialization method for saveGame and loadGame
-     *
-     * @param out
-     * @throws IOException
-     */
     private void writeObject(ObjectOutputStream out) throws IOException {
         out.defaultWriteObject();
         out.writeInt(rowFrom);
         out.writeInt(colFrom);
         out.writeInt(rowTo);
         out.writeInt(colTo);
+        out.writeInt(pointsDone);
+        out.writeObject(player);
     }
 
-    /**
-     * Serialization method for saveGame and loadGame
-     *
-     * @param ois
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
     private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         ois.defaultReadObject();
         rowFrom = ois.readInt();
         colFrom = ois.readInt();
         rowTo = ois.readInt();
         colTo = ois.readInt();
+        pointsDone = ois.readInt();
+        player = (Player) ois.readObject();
     }
 }
