@@ -1,4 +1,4 @@
-# Maven Template
+# Dots And Boxes
 
 ## Requirements
 
@@ -17,12 +17,27 @@ $ mvn clean install
 
 This should have generated a `.jar` file under `./target/` folder.
 
-4. Execute `.jar` by running:
+4. Execute `.jar` by running one of the following:
 
 ```
-$ java -jar [target/file.jar]
+$ java -jar java -jar target/dots-and-boxes.jar -size [n] -ai [m] -mode [time|depth] -param [k] -prune [on|off]
+```
+or
+```
+$ java -jar java -jar target/dots-and-boxes.jar -size [n] -ai [m] -mode [time|depth] -param [k] -prune [on|off] -load [file]
 ```
 
-## How to adapt it for your project
+## The values of the arguments are:
 
-Place all your code under `src/main/java`. Then, make sure to place the class containing the main method in the appropiate tag inside the `pom.xml` file.
+* -size [n]: it's the size of the board.
+* -ai [m]: it's the rol of the ai: 0 HUMAN vs HUMAN, 1 AI vs HUMAN, 2 HUMAN vs AI, 3 AI vs AI.
+* -mode [time|depth]: it's the mode of the mimimax algorithm, by time or depth.
+* -param [k]: it's the number of the last argument. When "time" it's seconds. When “depth” it's the depth of the minimax tree.
+* -prune [on|off]: turns on or off the prune of the minimax tree.
+* -load [file]: loads a saved game from file.
+
+## On release folder there is the compiled .jar file if necessary with some saved games to test it, so the line to execute would be for example:
+
+```
+$ java -jar java -jar release/dots-and-boxes.jar -size 3 -ai 2 -mode depth -param 1 -prune on -load game3x3
+```

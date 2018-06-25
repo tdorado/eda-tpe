@@ -2,18 +2,18 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>TPE</groupId>
-	<artifactId>Timbiriche</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<groupId>DAB</groupId>
+	<artifactId>DotsAndBoxes</artifactId>
+	<version>1.0</version>
 	<packaging>jar</packaging>
 
-	<name>Timbiriche</name>
+	<name>DotsAndBoxes</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.6</maven.compiler.source>
-		<maven.compiler.target>1.6</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 
 	<dependencies>
@@ -36,11 +36,12 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>TPE.Timbiriche.App</mainClass>
+							<mainClass>DAB.DotsAndBoxes.App</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>dots-and-boxes</finalName>
 	</build>
 </project>
